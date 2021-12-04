@@ -1,54 +1,83 @@
 #Requires -Version 7.1
 Function Invoke-GopherRequest {
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName='ToScreen')]
+	[OutputType([PSCustomObject], ParameterSetName='ToScreen')]
+	[OutputType([Void], ParameterSetName='OutFile')]
 	[Alias('igr')]
 	Param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory, Position=0)]
 		[Alias('Url')]
 		[ValidateNotNullOrEmpty()]
 		[Uri] $Uri,
 
-		[ValidateNotNullOrEmpty()]
-		[IO.FileInfo] $OutFile,
-
 		[Alias('UseTLS')]
 		[Switch] $UseSSL,
+
+		[Alias('Abstract','Admin','Attributes','Information')]
+		[Switch] $Info,
+
+		[ValidatePattern("[a-z]+\/.+")]
+		[String[]] $Views,
 
 		[ValidateSet('ASCII','UTF7','UTF8','UTF16','Unicode','UTF32')]
 		[String] $Encoding = 'UTF8',
 
-		[Switch] $Info,
-
+		[Parameter(ParameterSetName='OutFile')]
 		[ValidateNotNullOrEmpty()]
-		[String] $Views
+		[String] $OutFile
 	)
 
 	Set-StrictMode -Version Latest
 
 	Write-Verbose "Connecting to $($Uri.Host)"
-	$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
-	$TcpStream = $TcpSocket.GetStream()
-	$TcpStream.ReadTimeout = 2000 #milliseconds
-	If ($UseSSL) {
-		Write-Debug 'Upgrading connection to TLS'
-		$secureStream = [Net.Security.SslStream]::new($TcpStream, $false)
-		$secureStream.AuthenticateAsClient($Uri.Host)
-		$TcpStream = $secureStream
+	Try {
+		$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
+		$TcpStream = $TcpSocket.GetStream()
+		$TcpStream.ReadTimeout = 2000 #milliseconds
+		If ($UseSSL) {
+			Write-Debug 'Upgrading connection to TLS'
+			$secureStream = [Net.Security.SslStream]::new($TcpStream, $false)
+			$secureStream.AuthenticateAsClient($Uri.Host)
+			$TcpStream = $secureStream
+		}
+	}
+	Catch {
+		$msg = "Could not connect to $($Uri.Host):$($Uri.Port ?? 70)"
+		If ($UseSSL) {
+			$msg += ' with SSL/TLS'
+		}
+		Write-Error "$msg."
+		Return $null
 	}
 
-	# Strip the content type from the resource identifier.
-	# It's not supposed to be sent to the server.
+	# Figure out the content type.  Assume it's a Gopher menu by default.
 	$ContentTypeExpected = $null
+
+	# If the user provided one, we'll use that.
+	# But it needs to be removed from the URI.
 	If ($Uri.AbsolutePath -CMatch "^\/[0123456789+gIT:;<dhis]\/") {
-		$ContentTypeExpected = $Uri.AbsolutePath.Substring[1]
+		$ContentTypeExpected = $Uri.AbsolutePath[1]
 		$Path = $Uri.AbsolutePath.Substring(2)
+		Write-Debug "Stripping content type: was=$($Uri.AbsolutePath), now=$Path"
 		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)$Path")
 	}
+	
+	# Otherwise, let's try and guess.
+	Else {
+		$ContentTypeExpected = (Get-GopherType ($Uri.AbsolutePath -Split '\.')[-1])
+	}
+
+	# If we still can't figure it out, assume it's a Gopher menu.
+	$ContentTypeExpected ??= 1
+
+
+	# Determine if we're reading a binary file or text.
+	$BINARY_TRANSFER = (-Not $Info) -and ($ContentTypeExpected -In @(4,5 ,9,'g','I',':',';','<','d','s') )
 
 	# Request the resource.
 	$ToSend = $Uri.AbsolutePath
 	If ($Info) {
-		If ($Uri.AbsolutePath[-1] -eq '/') {
+		If ($ContentTypeExpected -eq 1) {
 			$ToSend += "`t$"
 		}
 		Else {
@@ -64,34 +93,52 @@ Function Invoke-GopherRequest {
 	$writer.WriteLine($ToSend)
 	$writer.Flush()
 
-	# Set text encoding.  Gopher probably default 
-	Switch ($Encoding) {
-		'ASCII'   {$Encoder = [Text.AsciiEncoding]::new()}
-		'UTF7'    {$Encoder = [Text.UTF7Encoding]::new()}
-		'UTF8'    {$Encoder = [Text.UTF8Encoding]::new()}
-		'UTF16'   {$Encoder = [Text.UnicodeEncoding]::new()}
-		'Unicode' {$Encoder = [Text.UnicodeEncoding]::new()}
-		'UTF32'   {$Encoder = [Text.UTF32Encoding]::new()}
-		default   {Throw [NotImplementedException]::new('An unknown Encoder was specified.')}
+	# Set text encoding for reading and writing textual output.
+	If (-Not $BINARY_TRANSFER) {
+		Switch ($Encoding) {
+			'ASCII'   {$Encoder = [Text.AsciiEncoding]::new()}
+			'UTF7'    {$Encoder = [Text.UTF7Encoding]::new()}
+			'UTF8'    {$Encoder = [Text.UTF8Encoding]::new()}
+			'UTF16'   {$Encoder = [Text.UnicodeEncoding]::new()}
+			'Unicode' {$Encoder = [Text.UnicodeEncoding]::new()}
+			'UTF32'   {$Encoder = [Text.UTF32Encoding]::new()}
+			default   {Throw [NotImplementedException]::new('An unknown Encoder was specified.')}
+		}
 	}
 
 	# Read the full response.
-	$BufferSize = 1024
+	$response = ($BINARY_TRANSFER ? [IO.MemoryStream]::new() : '')
+	$BufferSize = 102400 	# 100 KB, more than enough for text, but a sizable
+							# buffer to make binary transfers fast.
 	$buffer = New-Object Byte[] $BufferSize
-	$response = ''
 
-	$read = ''
-	Write-Debug 'Beginning to read'
-	Do {
-		Write-Debug "Reading from the server."
-		$read = $TcpStream.Read($buffer, 0, $BufferSize)
-		If ($read -gt 0) {
-			$response += $Encoder.GetString($buffer, 0, $read)
+	If (-Not $BINARY_TRANSFER)
+	{
+		If ($Info) {
+			Write-Debug "Beginning to read (attributes)."
+		} Else {
+			Write-Debug "Beginning to read (textual type $ContentTypeExpected)."
 		}
-	} While ($read -gt 0)
-	Write-Verbose "Received $($Encoder.GetByteCount($response)) bytes from server."
+		
+		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
+			Write-Debug "`tReading ≤$BufferSize bytes from the server."
+			$response += $Encoder.GetString($buffer, 0, $bytesRead)
+		}
+		Write-Verbose "Received $($Encoder.GetByteCount($response)) bytes from server."
+	}
+	Else # it is a binary transfer #
+	{
+		Write-Debug "Beginning to read (binary type $ContentTypeExpected)."
+		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
+			Write-Debug "`tRead ≤$BufferSize bytes from the server."
+			$response.Write($buffer, 0, $bytesRead)
+		}
+		$response.Flush()
+		Write-Verbose "Received $($response.Length) bytes from server."
+	}
 
 	# Close connections.
+	Write-Debug 'Closing connections.'
 	$writer.Close()
 	$TcpSocket.Close()
 
@@ -99,33 +146,50 @@ Function Invoke-GopherRequest {
 	$Content = ''
 	$Links = @()
 
-	$response -Split "(`r`n)" | ForEach-Object {
-		# Build Content variable
-		If ($_.Length -gt 0) {
-			$Content += ($_.Substring(1) -Split "`t")[0]
+	# Check for errors.  All errors begin with '3'.
+	If ( `
+		($BINARY_TRANSFER -and $response.ToArray()[0] -eq 51) -or `
+		(-Not $BINARY_TRANSFER -and $response[0] -eq '3' -and $response -CLike '*error.host*') `
+	) {
+		If ($BINARY_TRANSFER) {
+			$response = [Text.Encoding]::ASCII.GetString($response.ToArray())
 		}
-		Else {
-			$Content += "`r`n"
-		}
+		Write-Error -Message ($response.Substring(1, $response.IndexOf("`t"))) -TargetObject $Uri -ErrorId 3 -Category 'ResourceUnavailable'
+		Return $null
+	}
+	# If this is not a Gopher menu, then simply return the raw output.
+	ElseIf ($BINARY_TRANSFER) {
+		$Content = $response.ToArray()
+	}
+	# If this is anything non-binary and not a menu, simply return it.
+	ElseIf ($ContentTypeExpected -ne 1) {
+		$Content = $response
+	}
+	Else {
+		$response -Split "(`r`n)" | ForEach-Object {
+			Write-Debug "OUTPUT: $($_ -Replace "`r",'' -Replace "`n",'')"
 
-		# Look for links or errors.  However, we can skip this if we're using
-		# the -OutFile or -Info parameters, because no link objects are returned.
-		If (-Not $OutFile -and -Not $Info  -and $_ -Match "`t") {
-			$line = $_
-			Switch -RegEx ($_[0]) {
-				'i' {
-					Break
-				}
+			# Build Content variable
+			If ($_.Length -gt 0) {
+				$Content += ($_.Substring(1) -Split "`t")[0]
+			}
+			Else {
+				$Content += "`r`n"
+			}
 
-				'3' {
-					Write-Error -Message $Content -TargetObject $Uri -ErrorId 3 -Category 'ResourceUnavailable'
-					$StatusCode = 3
-				}
-		
-				# All other Gopher links
-				default {
-					$result = Convert-GopherLink $line -Server $Uri.Host -Port $Uri.Port
-					$Links += $result
+			# Look for links or errors.  However, we can skip this if we're using
+			# the -OutFile or -Info parameters, because no link objects are returned.
+			If (-Not $OutFile -and -Not $Info  -and $_ -Match "`t") {
+				$line = $_
+				Switch -RegEx ($_[0]) {
+					'i' {
+						Break
+					}
+
+					default {
+						$result = Convert-GopherLink $line -Server $Uri.Host -Port $Uri.Port
+						$Links += $result
+					}
 				}
 			}
 		}
@@ -139,12 +203,21 @@ Function Invoke-GopherRequest {
 			Write-Error $Content
 			Return $null
 		} Else {
-			Write-Verbose "Writing $($Encoder.GetByteCount($Content)) bytes to $OutFile"
-			Set-Content -AsByteStream -Path:$OutFile -Value:$Content	
+			If (-Not $BINARY_TRANSFER)
+			{
+				Write-Verbose "Writing $($Encoder.GetByteCount($response)) bytes to $OutFile"
+				Set-Content -Path $OutFile -Value $Content -Encoding $Encoding 
+			}
+			Else {
+				Write-Verbose "Writing $($response.Length) bytes to $OutFile"
+				Set-Content -Path $OutFile -Value $Content -AsByteStream 
+			}
 		}
 		Return
 	}
-	ElseIf ($Info) {
+	# TODO: figure out how to parse Gophermaps in Gopher+ mode.
+	# For now, let's skip all this and return it as plain text.
+	ElseIf ($Info -and $ContentTypeExpected -ne 1) {
 		$Result = [PSCustomObject]@{}
 
 		# For each line of Gopher+ output, we're going to see if it begins with
@@ -161,7 +234,8 @@ Function Invoke-GopherRequest {
 				If ($_[0] -eq '+') {
 					If ($AttributeValue) {
 						If ($AttributeName -In @('ADMIN', 'VIEWS')) {
-							$Result | Add-Member -NotePropertyName $AttributeName -NotePropertyValue $AttributeValue.Split("`r`n", [StringSplitOptions]::RemoveEmptyEntries)
+							$splits = $AttributeValue.Split("`r`n", [StringSplitOptions]::RemoveEmptyEntries).Trim()
+							$Result | Add-Member -NotePropertyName $AttributeName -NotePropertyValue $splits
 							# ($AttributeValue -Split "\s*\r\n\s*")
 						}
 						Else {
@@ -194,22 +268,22 @@ Function Invoke-GopherRequest {
 	}
 	Else {
 		Return [PSCustomObject]@{
-			'StatusCode' = $StatusCode
-			'StatusDescription' = ($StatusCode -eq 3 ? 'ERROR' : 'OK')
 			'ContentType' = $ContentTypeExpected ?? 1
 			'Content' = $Content
-			'RawContent' = $response
-			'Encoding' = $Encoder.GetType()
-			'Images' = $Links | Where-Object {$_.Type -Eq 'g' -Or $_.Type -Eq 'I'}
+			'Encoding' = ($BINARY_TRANSFER ? $Content.GetType() : $Encoder.GetType())
+			'Images'  = $Links | Where-Object {$_.Type -Eq 'g' -Or $_.Type -Eq 'I'}
 			'Links' = $Links
+			'RawContent' = ($BINARY_TRANSFER ? $response.ToArray() : $response)
 			'RawContentLength' = $response.Length
 		}
 	}
 }
 
 Function Convert-GopherLink {
+	[CmdletBinding()]
+	[OutputType([PSCustomObject])]
 	Param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
 		[ValidatePattern('^(?:.)(?:[^\t]*)\t')]
 		[String] $InputObject,
@@ -219,6 +293,7 @@ Function Convert-GopherLink {
 		[UInt16] $Port
 	)
 
+	Write-Debug '*** Found a Gopher link.'
 	$fields = $InputObject -Split "`t"
 	$uri    = $null
 
@@ -241,6 +316,8 @@ Function Convert-GopherLink {
 		}
 	}
 
+	Write-Debug "*** Type=$($fields[0][0]): $Uri"
+	Write-Verbose "LINK: Type=$($fields[0][0]): $Uri"
 	Return [PSCustomObject]@{
 		'href' = $uri
 		'Type' = $fields[0][0]
@@ -250,4 +327,108 @@ Function Convert-GopherLink {
 		'Port' = $Uri.Port
 		'UrlLink' = ($InputObject -Match '\t\/?URL:')
 	}
+}
+
+# This helper function guessed at types when the user forgets to enter one.
+# This ensures that data will be returned in either text or binary format.
+# Feel free to add extensions and types as you see fit.
+Function Get-GopherType {
+	[OutputType([Char])]
+	Param(
+		[ValidateNotNullOrEmpty()]
+		[String] $Extension
+	)
+
+	# This list will be searched case-insensitively.
+	$Extensions = @{
+		'asc' = 0
+		'avi' = ';'
+		'avif' = 'I'
+		'bmp' = ':'
+		'br' = 9
+		'bz2' = 9
+		'c' = 0
+		'cpp' = 0
+		'cs' = 0
+		'css' = 0
+		'csv' = 0
+		'dib' = ':'
+		'dmg' = 9
+		'doc' = 'd'
+		'docx' = 'd'
+		'dot' = 'd'
+		'dotm' = 'd'
+		'dotx' = 'd'
+		'epub' = 9
+		'flac' = '<'
+		'flv' = ';'
+		'gif' = 'g'
+		'gifv' = ';'
+		'gpg' = 9
+		'gz' = 9
+		'h' = 0
+		'hpp' = 0
+		'hs' = 0
+		'hqx' = 4
+		'htm' = 'h'
+		'html' = 'h'
+		'ico' = 'I'
+		'iso' = 9
+		'jp2' = 'I'
+		'jpg' = 'I'
+		'jpeg' = 'I'
+		'js' = 0
+		'json' = 0
+		'jxl' = 'I'
+		'lzma' = 9
+		'md' = 0
+		'mkv' = ';'
+		'mov' = ';'
+		'mp3' = '<'
+		'mp4' = ';'	# sometimes just audio
+		'msp' = 'I'
+		'ogg' = '<'
+		'ogv' = ';'
+		'pcx' = ':'
+		'pdf' = 'd'
+		'pdn' = 'I'
+		'pict' = 'I'
+		'png' = 'I'
+		'ppt' = 'd'
+		'pptx' = 'd'
+		'ps' = 'd'
+		'py' = 'd'
+		'rdf' = 0
+		'rs' = 0
+		'sh' = 0
+		'sit' = 9
+		'sql' = 0
+		'svg' = 'I'		# could also be 0
+		'svgz' = 'I'
+		'tar' = 9
+		'tif' = 'I'
+		'tiff' = 'I'
+		'txt' = 0
+		'uue' = 6
+		'wav' = '<'
+		'webm' = ';'
+		'webp' = 'I'
+		'wp2' = 'I'
+		'xhtml' = 'h'
+		'xls' = 'd'
+		'xlsb' = 'd'
+		'xlsm' = 'd'
+		'xlsx' = 'd'
+		'xml' = 0
+		'xpm' = 'I'
+		'xsd' = 0
+		'xsl' = 0
+		'xz' = 9
+		'zip' = 9
+		'7z' = 9
+	}
+
+	$Result = $Extensions[$Extension]
+	Write-Verbose "Guessing that the extension $Extension is of type $Result."
+	Return $Result
 }

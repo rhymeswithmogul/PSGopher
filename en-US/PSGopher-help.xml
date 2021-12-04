@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Invoke-GopherRequest</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>GopherRequest</command:noun>
+      <maml:description>
+        <maml:para>Gets content from a Gopher or Gopher+ server on the Internet.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>The `Invoke-GopherRequest` cmdlet sends requests to a Gopher or Gopher+ server (with or without TLS).  It parses the response and returns collections of links, images, and metadata;  or, it can download files.</maml:para>
+      <maml:para>This cmdlet will make the best guess as to what type of file you will be requesting (based on extension).  However, it's recommended to supply the expected content type as part of the URI string.  For example, "gopher://example.com/0/file.txt" as opposed to "gopher://example.com/file.txt".</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Invoke-GopherRequest</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Url">
+          <maml:name>Uri</maml:name>
+          <maml:description>
+            <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" scheme only.  For secure Gopher, add the -UseSSL parameter instead.
+This parameter is required. The parameter name Uri is optional.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Uri</command:parameterValue>
+          <dev:type>
+            <maml:name>Uri</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Encoding</maml:name>
+          <maml:description>
+            <maml:para>When using `-OutFile` to download text files, specifies the type of encoding for the target file.  Supported encodings are: 	- ASCII : Uses the encoding for the ASCII (7-bit) character set. 	- UTF7  : Encodes in UTF-7 format. 	- UTF8  : Encodes in UTF-8 format.  This is the default. 	- UTF16 : Encodes in UTF-16 format using the little-endian byte order. 	- UTF32 : Encodes in UTF-32 format.</maml:para>
+            <maml:para>Historically, Gopher only supported ASCII.  However, UTF8 is the default option for this cmdlet, as that is the most common encoding these days.</maml:para>
+            <maml:para>If the file being downloaded is expected to be binary, this parameter has no effect.</maml:para>
+          </maml:description>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" command:variableLength="false">ASCII</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">UTF7</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">UTF8</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">UTF16</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">Unicode</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">UTF32</command:parameterValue>
+          </command:parameterValueGroup>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Abstract, Admin, Attributes, Information">
+          <maml:name>Info</maml:name>
+          <maml:description>
+            <maml:para>Instead of fetching the contents of the remote resource, this will make the cmdlet send a Gopher+ request to retrieve only attributes about the item instead.  This will return a `PSCustomObject` containing attributes such as INFO, ADMIN, ABSTRACT, and VIEWS.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OutFile</maml:name>
+          <maml:description>
+            <maml:para>Specifies the output file for which this cmdlet saves the response body.  Enter a path and file name.  If you omit the path, the default is the current location.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS">
+          <maml:name>UseSSL</maml:name>
+          <maml:description>
+            <maml:para>Requires this Gopher connection to use SSL/TLS.  All SSL/TLS protocols enabled in the current session are allowed.</maml:para>
+            <maml:para>If the remote server does not support secure connections, this cmdlet will intentionally fail.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Views</maml:name>
+          <maml:description>
+            <maml:para>When using Gopher+, you can request that your content be delivered in this specified MIME type.  The server will make its best effort to supply your document in that format, if it can.  All servers should support "text/plain".</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Encoding</maml:name>
+        <maml:description>
+          <maml:para>When using `-OutFile` to download text files, specifies the type of encoding for the target file.  Supported encodings are: 	- ASCII : Uses the encoding for the ASCII (7-bit) character set. 	- UTF7  : Encodes in UTF-7 format. 	- UTF8  : Encodes in UTF-8 format.  This is the default. 	- UTF16 : Encodes in UTF-16 format using the little-endian byte order. 	- UTF32 : Encodes in UTF-32 format.</maml:para>
+          <maml:para>Historically, Gopher only supported ASCII.  However, UTF8 is the default option for this cmdlet, as that is the most common encoding these days.</maml:para>
+          <maml:para>If the file being downloaded is expected to be binary, this parameter has no effect.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Abstract, Admin, Attributes, Information">
+        <maml:name>Info</maml:name>
+        <maml:description>
+          <maml:para>Instead of fetching the contents of the remote resource, this will make the cmdlet send a Gopher+ request to retrieve only attributes about the item instead.  This will return a `PSCustomObject` containing attributes such as INFO, ADMIN, ABSTRACT, and VIEWS.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OutFile</maml:name>
+        <maml:description>
+          <maml:para>Specifies the output file for which this cmdlet saves the response body.  Enter a path and file name.  If you omit the path, the default is the current location.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Url">
+        <maml:name>Uri</maml:name>
+        <maml:description>
+          <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" scheme only.  For secure Gopher, add the -UseSSL parameter instead.
+This parameter is required. The parameter name Uri is optional.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Uri</command:parameterValue>
+        <dev:type>
+          <maml:name>Uri</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS">
+        <maml:name>UseSSL</maml:name>
+        <maml:description>
+          <maml:para>Requires this Gopher connection to use SSL/TLS.  All SSL/TLS protocols enabled in the current session are allowed.</maml:para>
+          <maml:para>If the remote server does not support secure connections, this cmdlet will intentionally fail.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Views</maml:name>
+        <maml:description>
+          <maml:para>When using Gopher+, you can request that your content be delivered in this specified MIME type.  The server will make its best effort to supply your document in that format, if it can.  All servers should support "text/plain".</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para></maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS&gt; $response = Invoke-GopherRequest gopher://floodgap.com
+PS&gt; $response.Content
+
+Welcome to Floodgap Systems' official gopher server.
+Floodgap has served the gopher community since 1999
+(formerly gopher.ptloma.edu).
+[...]</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>PS&gt; igr -Info gopher://colincogle.name/blog/powershell-7/powershell-7-for-programmers.txt
+
+INFO                                                                                                       ADMIN
+----                                                                                                       -----                     
+0powershell-7-for-programmers.txt       /blog/powershell-7/powershell-7-for-programmers.txt     colincogle.name 70      + {Admin: Colin Cogle &lt;coli…</dev:code>
+        <dev:remarks>
+          <maml:para>To save typing, `igr` is an alias for this command.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 3 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; $uri = 'gopher://floodgap.org'
+PS C:\&gt; Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 4 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Invoke-GopherRequest 'gopher://example.org/images/coolpic.gif' -OutFile 'coolpic.gif'</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/PSGopher/blob/man/en-US/Invoke-GopherRequest.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>

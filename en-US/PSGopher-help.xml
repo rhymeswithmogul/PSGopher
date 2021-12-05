@@ -249,6 +249,14 @@ PS C:\&gt; Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri</dev:c
         <maml:linkText>Online Version:</maml:linkText>
         <maml:uri>https://github.com/rhymeswithmogul/PSGopher/blob/man/en-US/Invoke-GopherRequest.md</maml:uri>
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_PSGopher</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Invoke-WebRequest</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
 </helpItems>

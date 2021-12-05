@@ -29,13 +29,14 @@ Function Invoke-GopherRequest {
 
 	Set-StrictMode -Version Latest
 
+	#region Establish TCP connection.
 	Write-Verbose "Connecting to $($Uri.Host)"
 	Try {
 		$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
 		$TcpStream = $TcpSocket.GetStream()
 		$TcpStream.ReadTimeout = 2000 #milliseconds
 		If ($UseSSL) {
-			Write-Debug 'Upgrading connection to TLS'
+			Write-Debug 'Upgrading connection to TLS.'
 			$secureStream = [Net.Security.SslStream]::new($TcpStream, $false)
 			$secureStream.AuthenticateAsClient($Uri.Host)
 			$TcpStream = $secureStream
@@ -46,11 +47,26 @@ Function Invoke-GopherRequest {
 		If ($UseSSL) {
 			$msg += ' with SSL/TLS'
 		}
-		Write-Error "$msg."
+		$msg += '.  Aborting.'
+
+		# Throw a non-terminating error so that $? is set properly and the
+		# pipeline can continue.  This will allow chaining operators to work as
+		# intended.  Should a future version of this module support pipeline
+		# input, that will let this cmdlet keep running with other input URIs.
+		$er = [Management.Automation.ErrorRecord]::new(
+			[Net.WebException]::new($msg),
+			'TlsConnectionFailed',
+			[Management.Automation.ErrorCategory]::ConnectionError,
+			$Uri
+		)
+		$er.CategoryInfo.Activity = 'NegotiateTlsConnection'
+		$PSCmdlet.WriteError($er)
 		Return $null
 	}
+	#endregion (Establish TCP connection)
 
-	# Figure out the content type.  Assume it's a Gopher menu by default.
+
+	#region Content type negotiation
 	$ContentTypeExpected = $null
 
 	# If the user provided one, we'll use that.
@@ -70,11 +86,11 @@ Function Invoke-GopherRequest {
 	# If we still can't figure it out, assume it's a Gopher menu.
 	$ContentTypeExpected ??= 1
 
-
 	# Determine if we're reading a binary file or text.
 	$BINARY_TRANSFER = (-Not $Info) -and ($ContentTypeExpected -In @(4,5 ,9,'g','I',':',';','<','d','s') )
+	#endregion (Content type negotiation)
 
-	# Request the resource.
+	#region Send request
 	$ToSend = $Uri.AbsolutePath
 	If ($Info) {
 		If ($ContentTypeExpected -eq 1) {
@@ -92,7 +108,9 @@ Function Invoke-GopherRequest {
 	$writer = [IO.StreamWriter]::new($TcpStream)
 	$writer.WriteLine($ToSend)
 	$writer.Flush()
+	#endregion (Send request)
 
+	#region Receive data
 	# Set text encoding for reading and writing textual output.
 	If (-Not $BINARY_TRANSFER) {
 		Switch ($Encoding) {
@@ -136,12 +154,14 @@ Function Invoke-GopherRequest {
 		$response.Flush()
 		Write-Verbose "Received $($response.Length) bytes from server."
 	}
+	#endregion (Receive data)
 
 	# Close connections.
 	Write-Debug 'Closing connections.'
 	$writer.Close()
 	$TcpSocket.Close()
 
+	#region Parse response
 	$StatusCode = 0
 	$Content = ''
 	$Links = @()
@@ -194,7 +214,9 @@ Function Invoke-GopherRequest {
 			}
 		}
 	}
+	#endregion (Parse response)
 
+	#region Generate output
 	# If we are saving the output to a file, then we do not send anything to the
 	# output buffer.  We save the Content to a file instead.
 	If ($OutFile) {
@@ -267,16 +289,23 @@ Function Invoke-GopherRequest {
 		Return $Result
 	}
 	Else {
+		# Let's tell the user how we fetched this resource/attributes.
+		# This will be more useful when I implement opportunistic TLS.
+		$Protocol = ($Info -or $Views ? 'Gopher+' : 'Gopher')
+		$Protocol = ($UseSSL          ? "Secure$Protocol" : $Protocol)
+
 		Return [PSCustomObject]@{
+			'Protocol' = $Protocol
 			'ContentType' = $ContentTypeExpected ?? 1
 			'Content' = $Content
 			'Encoding' = ($BINARY_TRANSFER ? $Content.GetType() : $Encoder.GetType())
 			'Images'  = $Links | Where-Object {$_.Type -Eq 'g' -Or $_.Type -Eq 'I'}
 			'Links' = $Links
-			'RawContent' = ($BINARY_TRANSFER ? $response.ToArray() : $response)
+			'RawContent'  = ($BINARY_TRANSFER ? $response.ToArray() : $response)
 			'RawContentLength' = $response.Length
 		}
 	}
+	#endregion (Generate output)
 }
 
 Function Convert-GopherLink {

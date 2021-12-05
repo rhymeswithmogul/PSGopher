@@ -190,3 +190,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+[about_PSGopher](about_PSGopher)
+[Invoke-WebRequest](Invoke-WebRequest)

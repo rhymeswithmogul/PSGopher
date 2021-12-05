@@ -1,0 +1,88 @@
+﻿TOPIC
+    about_PSGopher
+
+SHORT DESCRIPTION
+    A PowerShell module to download resources via Gopher.
+
+LONG DESCRIPTION
+    The PSGopher module allows you to connect to Gopher and Gopher+ servers and
+    download resources and attributes.  It has one cmdlet, Invoke-GopherRequest
+    (alias: igr).
+
+EXAMPLES
+Example 1: Viewing Contents
+    This example will connect to Floodgap's Gopher server and return the content.
+
+    PS C:\> $response = Invoke-GopherRequest gopher://floodgap.com
+    PS C:\> $response.Content
+
+    Welcome to Floodgap Systems' official gopher server.
+    Floodgap has served the gopher community since 1999
+    (formerly gopher.ptloma.edu).
+    […]
+
+Example 2: Viewing Metadata
+    The -Info parameter will retrieve attributes about a resource, if the server
+    supports Gopher+.
+
+    PS C:\> igr -Info gopher://example.com/article.txt
+
+    INFO     : 0article.txt /article.txt	example.com	70	+
+    ADMIN    : {
+                Admin: John Doe <jdoe@example.com>,
+                Mod-Date: Sun Nov 28 15:24:21 2021 <20211128152421>
+               }
+    VIEWS    : text/plain: <11k>
+    ABSTRACT : This article exists for documentation purposes.
+
+Example 3: Downloading Files
+    You can download files with the `-OutFile` parameter.
+
+    PS C:\> Invoke-GopherRequest 'gopher://example.org/pic.gif' -OutFile 'pic.gif'
+
+Example 4: Viewing Links
+    The `Links` property of a successful Gopher request contains all of a page's
+    links.
+
+    PS C:\> (igr gopher://floodgap.com).Links | Select -First 1
+
+    href        : gopher://gopher.floodgap.com/gopher/proxy
+    Type        : 0
+    Description : Does this gopher menu look correct?
+    Resource    : /gopher/proxy
+    Server      : gopher.floodgap.com
+    Port        : 70
+    UrlLink     : False
+
+TROUBLESHOOTING NOTE
+    There are a few bugs and missing features in this version:
+
+Gopher+ Directory Listings Are Plain Text
+    Gopher+ directory listings aren't fully supported by this version. While you
+    can fetch any attributes with the -Info parameter and get them as an object,
+    doing this on a menu/Gophermap or directory will return plain text. This may
+    be updated in a future release.
+
+Using SSL/TLS Requires a Secure Connection
+    Using the -UseSSL parameter will require a secure connection to the server.
+    If SSL/TLS cannot be negotiated, the cmdlet will intentionally fail. Seeing
+    as how Gopher predates SSL and TLS by many years, support for secure Gopher
+    may be fairly rare.
+
+    This cmdlet does not support opportunistic encryption (yet?), but it can be
+    done by using pipeline chaining operators:
+
+    PS C:\> Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri
+
+SEE ALSO
+ - `Invoke-WebRequest`, which this cmdlet is modeled after.
+ - RFC 1436, "The Internet Gopher Protocol". https://tools.ietf.org/html/rfc1436
+ - RFC 4266, "The Gopher URI Scheme".  https://tools.ietf.org/html/rfc4266
+ - Gopher+.  http://gopherinfo.somnolescent.net/documentation/gopherplus.html
+
+KEYWORDS
+ - Gopher
+ - Gopher+
+ - GopherPlus
+ - RFC1436
+

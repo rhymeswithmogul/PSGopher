@@ -9,7 +9,7 @@
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -49,7 +49,7 @@ AliasesToExport = @('igr')
 
 # List of all files packaged with this module
 FileList = @(
-	'en-US/about_PSGopher.help.xml',
+	'en-US/about_PSGopher.help.txt',
 	'en-US/PSGopher-help.xml',
 	'src/PSGopher.psm1',
 	'AUTHORS',

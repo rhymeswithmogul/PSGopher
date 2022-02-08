@@ -162,7 +162,6 @@ Function Invoke-GopherRequest {
 	$TcpSocket.Close()
 
 	#region Parse response
-	$StatusCode = 0
 	$Content = ''
 	$Links = @()
 
@@ -299,7 +298,7 @@ Function Invoke-GopherRequest {
 			'ContentType' = $ContentTypeExpected ?? 1
 			'Content' = $Content
 			'Encoding' = ($BINARY_TRANSFER ? $Content.GetType() : $Encoder.GetType())
-			'Images'  = $Links | Where-Object {$_.Type -Eq 'g' -Or $_.Type -Eq 'I'}
+			'Images'  = $Links | Where-Object Type -In @('g','I')
 			'Links' = $Links
 			'RawContent'  = ($BINARY_TRANSFER ? $response.ToArray() : $response)
 			'RawContentLength' = $response.Length

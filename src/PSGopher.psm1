@@ -73,9 +73,14 @@ Function Invoke-GopherRequest {
 	# But it needs to be removed from the URI.
 	If ($Uri.AbsolutePath -CMatch "^\/[0123456789+gIT:;<dhis]") {
 		$ContentTypeExpected = $Uri.AbsolutePath[1]
+
+		# The code may have removed the leading slash.  Put that back.
+		# If there was already one, remove it.
 		$Path = $Uri.AbsolutePath.Substring(2)
-		Write-Debug "Stripping content type: was=$($Uri.AbsolutePath), now=/$Path"
-		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)/$Path")
+		$Path = "/$Path" -Replace '//','/'
+
+		Write-Debug "Stripped content type: was=$($Uri.AbsolutePath), now=$Path"
+		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)$Path")
 	}
 	
 	# Otherwise, let's try and guess.

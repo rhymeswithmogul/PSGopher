@@ -328,12 +328,12 @@ Function Convert-GopherLink {
 
 	Write-Debug '*** Found a Gopher link.'
 	$fields = $InputObject -Split "`t"
-	$uri    = $null
+	$Uri    = $null
 
 	# Are we dealing with a /URL: link?  If so, we can easily create
 	# the href [Uri].  Otherwise, we'll need to build it ourselves.
 	If ($fields[1] -CLike 'URL:*' -or $fields[1] -CLike '/URL:*') {
-		$uri = [Uri]::new($fields[1] -Replace [RegEx]"\/?URL:",'')
+		$Uri = [Uri]::new($fields[1] -Replace [RegEx]"\/?URL:",'')
 	}
 	Else {
 		$Server = ${fields}?[2] ?? $Server
@@ -343,9 +343,9 @@ Function Convert-GopherLink {
 		# For the first two (CCSO and Telnet), there should be nothing after the
 		# optional port, but let's include it anyway.
 		Switch -RegEx ($fields[0][0]) {
-			'2'     {$Port ??= 105; $uri = [Uri]::new("cso://${Server}:$Port$($fields[1])")}
-			'[8T]'  {$Port ??= 23;  $uri = [Uri]::new("telnet://${Server}:$Port$($fields[1])")}
-			default {$Port ??= 70;  $uri = [Uri]::new("gopher://${Server}:$Port$($fields[1])")}
+			'2'     {$Port ??= 105; $Uri = [Uri]::new("cso://${Server}:$Port/$($fields[1])")}
+			'[8T]'  {$Port ??= 23;  $Uri = [Uri]::new("telnet://${Server}:$Port/$($fields[1])")}
+			default {$Port ??= 70;  $Uri = [Uri]::new("gopher://${Server}:$Port/$($fields[1])")}
 		}
 	}
 

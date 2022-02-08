@@ -21,7 +21,7 @@ GUID = '81001589-9a2a-4554-a07b-fe0ffd4b9b50'
 Author = 'Colin Cogle <colin@colincogle.name>'
 
 # Copyright statement for this module
-Copyright = '(c) 2021 Colin Cogle. Licensed under the AGPL, version 3 or later.'
+Copyright = '(c) 2021-2022 Colin Cogle. Licensed under the AGPL, version 3 or later.'
 
 # Description of the functionality provided by this module
 Description = 'Connect to Gopher and Gopher+ servers.'
@@ -68,7 +68,7 @@ PrivateData = @{
 	PSData = @{
 
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'igr')
+		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'download', 'igr', 'Overbite', 'port70', 'RFC1436')
 
 		# A URL to the license for this module.
 		LicenseUri = 'https://www.gnu.org/licenses/agpl-3.0.en.html'

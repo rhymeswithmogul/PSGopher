@@ -71,11 +71,11 @@ Function Invoke-GopherRequest {
 
 	# If the user provided one, we'll use that.
 	# But it needs to be removed from the URI.
-	If ($Uri.AbsolutePath -CMatch "^\/[0123456789+gIT:;<dhis]\/") {
+	If ($Uri.AbsolutePath -CMatch "^\/[0123456789+gIT:;<dhis]") {
 		$ContentTypeExpected = $Uri.AbsolutePath[1]
 		$Path = $Uri.AbsolutePath.Substring(2)
-		Write-Debug "Stripping content type: was=$($Uri.AbsolutePath), now=$Path"
-		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)$Path")
+		Write-Debug "Stripping content type: was=$($Uri.AbsolutePath), now=/$Path"
+		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)/$Path")
 	}
 	
 	# Otherwise, let's try and guess.
@@ -362,6 +362,7 @@ Function Convert-GopherLink {
 # This ensures that data will be returned in either text or binary format.
 # Feel free to add extensions and types as you see fit.
 Function Get-GopherType {
+	[CmdletBinding()]
 	[OutputType([Char])]
 	Param(
 		[ValidateNotNullOrEmpty()]
@@ -458,6 +459,6 @@ Function Get-GopherType {
 	}
 
 	$Result = $Extensions[$Extension]
-	Write-Verbose "Guessing that the extension $Extension is of type $Result."
+	Write-Verbose "Guessing that the extension $Extension is of type $($Result ?? 'unknown')."
 	Return $Result
 }

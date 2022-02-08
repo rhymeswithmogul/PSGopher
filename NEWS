@@ -1,3 +1,9 @@
+VERSION 1.0.2
+Fixes a bug where the content type negotiation fails when the second
+character of the URL is not a forward slash.  For example:
+ - gopher://example.com/0/textfile.txt -> would work
+ - gopher://example.com/0textfile.txt  -> would not have worked
+
 VERSION 1.0.1
 There are no user-visible changes.  Only the documentation was updated.
 

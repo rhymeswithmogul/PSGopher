@@ -4,6 +4,9 @@ character of the URL is not a forward slash.  For example:
  - gopher://example.com/0/textfile.txt -> would work
  - gopher://example.com/0textfile.txt  -> would not have worked
 
+Also, more file types are recognized by the content type guesser, such
+as OpenDocument and gemtext documents.
+
 VERSION 1.0.1
 There are no user-visible changes.  Only the documentation was updated.
 

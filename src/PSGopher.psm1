@@ -390,10 +390,15 @@ Function Get-GopherType {
 		'dotm' = 'd'
 		'dotx' = 'd'
 		'epub' = 9
+		'fodg' = 'd'
+		'fodp' = 'd'
+		'fods' = 'd'
+		'fodt' = 'd'
 		'flac' = '<'
 		'flv' = ';'
 		'gif' = 'g'
 		'gifv' = ';'
+		'gmi' = 0
 		'gpg' = 9
 		'gz' = 9
 		'h' = 0
@@ -417,6 +422,11 @@ Function Get-GopherType {
 		'mp3' = '<'
 		'mp4' = ';'	# sometimes just audio
 		'msp' = 'I'
+		'odf' = 'd'
+		'odg' = 'd'
+		'odp' = 'd'
+		'ods' = 'd'
+		'odt' = 'd'
 		'ogg' = '<'
 		'ogv' = ';'
 		'pcx' = ':'
@@ -427,7 +437,7 @@ Function Get-GopherType {
 		'ppt' = 'd'
 		'pptx' = 'd'
 		'ps' = 'd'
-		'py' = 'd'
+		'py' = 0
 		'rdf' = 0
 		'rs' = 0
 		'sh' = 0

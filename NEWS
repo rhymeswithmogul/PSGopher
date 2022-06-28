@@ -1,3 +1,7 @@
+VERSION 1.1
+- Adds support for Gopher query strings via the $InputObject parameter.
+  Previously, one would have to form their own URL with a query string.
+
 VERSION 1.0.2
 - Fixes a bug where the content type negotiation fails when the second
   character of the URL is not a forward slash.  For example:

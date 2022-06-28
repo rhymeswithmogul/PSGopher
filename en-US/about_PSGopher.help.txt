@@ -54,6 +54,22 @@ Example 4: Viewing Links
     Port        : 70
     UrlLink     : False
 
+Example 5: Sending Input
+    The `InputObject` parameter (or pipeline input) can be used to send a query
+    string to a Gopher server.
+
+    PS C:\> igr gopher://gopher.floodgap.com/7/v2/vs -InputObject 'search terms'
+
+    Pipeline input is also supported:
+
+    Read-Host -Prompt 'Search for' | igr 'gopher://gopher.floodgap.com/7/v2/vs'
+
+    Due to how the PowerShell runtime handles [System.Uri] objects with non-HTTP
+    and non-HTTPS schemes,  it is strongly recommended that you use -InputObject
+    when creating URIs with query strings.  This cmdlet will do the URL-encoding
+    for you when using this parameter.  However, if you're bold, you can build a
+    URL by hand for the -Uri parameter.
+
 TROUBLESHOOTING NOTE
     There are a few bugs and missing features in this version:
 
@@ -84,5 +100,8 @@ KEYWORDS
  - Gopher
  - Gopher+
  - GopherPlus
+ - SecureGopher
  - RFC1436
+ - small web
+ - WWW alternatives
 

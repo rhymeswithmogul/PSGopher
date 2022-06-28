@@ -24,7 +24,12 @@ Function Invoke-GopherRequest {
 
 		[Parameter(ParameterSetName='OutFile')]
 		[ValidateNotNullOrEmpty()]
-		[String] $OutFile
+		[String] $OutFile,
+
+		[Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
+		[Alias('Post','PostData','Query','QueryString')]
+		[AllowNull()]
+		[String] $InputObject
 	)
 
 	Set-StrictMode -Version Latest
@@ -80,6 +85,7 @@ Function Invoke-GopherRequest {
 		$Path = "/$Path" -Replace '//','/'
 
 		Write-Debug "Stripped content type: was=$($Uri.AbsolutePath), now=$Path"
+
 		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)$Path")
 	}
 	
@@ -94,6 +100,20 @@ Function Invoke-GopherRequest {
 	# Determine if we're reading a binary file or text.
 	$BINARY_TRANSFER = (-Not $Info) -and ($ContentTypeExpected -In @(4,5 ,9,'g','I',':',';','<','d','s') )
 	#endregion (Content type negotiation)
+
+	#region Parse input parameters
+	If ($null -ne $InputObject) {
+		Write-Debug "Found query string=$InputObject"
+
+		$Encoder = [Web.HttpUtility]::ParseQueryString('')
+		$Encoder.Add($null, $InputObject)
+		$EncodedInput = $Encoder.ToString() -Replace '\+','%20'	# Gopher requires URL (percent) encoding for spaces.
+		
+		Write-Debug "Encoded query string=$EncodedInput"
+
+		$Uri = [Uri]::new($Uri.ToString() + '?' + $EncodedInput)
+	}
+	#endregion
 
 	#region Send request
 	$ToSend = $Uri.AbsolutePath

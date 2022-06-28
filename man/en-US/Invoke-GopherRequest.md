@@ -15,13 +15,13 @@ Gets content from a Gopher or Gopher+ server on the Internet.
 ### ToScreen (Default)
 ```
 Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-Info] [-Views <String[]>] [-Encoding <String>]
- [<CommonParameters>]
+ [-InputObject <String>] [<CommonParameters>]
 ```
 
 ### OutFile
 ```
 Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-Info] [-Views <String[]>] [-Encoding <String>]
- [-OutFile <String>] [<CommonParameters>]
+ [-OutFile <String>] [-InputObject <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -70,6 +70,13 @@ You can download files with the `-OutFile` parameter.
 
 ```powershell
 PS C:\> Invoke-GopherRequest 'gopher://example.org/images/coolpic.gif' -OutFile 'coolpic.gif'
+```
+
+### Example 5
+If you need to supply input to a Gopher server (for example, a search engine), use the `-InputObject` parameter.  Input specified this way will be automatically URL-encoded.
+
+```powershell
+PS C:\> Invoke-GopherRequest 'gopher://gopher.floodgap.com/7/v2/vs' -InputObject 'search query'
 ```
 
 ## PARAMETERS
@@ -178,17 +185,37 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -InputObject
+To send data to the Gopher server -- for example, when using a search engine -- the simplest way is to specify it with this parameter.  Any input will be automatically URL-encoded and appended to the URL.
+
+Due to how the PowerShell runtime handles non-HTTP(S) URIs, it is not recommended to write the URL yourself.  Please use this parameter instead.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: Post, PostData, Query, QueryString
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### None
+### System.String
+Any strings passed to this cmdlet will be used as the `-InputObject` parameter value.
+
 ## OUTPUTS
 
 ### System.Object
 ## NOTES
 
 ## RELATED LINKS
+
 [about_PSGopher](about_PSGopher)
 [Invoke-WebRequest](Invoke-WebRequest)

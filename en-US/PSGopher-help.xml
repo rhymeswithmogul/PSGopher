@@ -98,6 +98,19 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="Post, PostData, Query, QueryString">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>To send data to the Gopher server -- for example, when using a search engine -- the simplest way is to specify it with this parameter.  Any input will be automatically URL-encoded and appended to the URL.</maml:para>
+            <maml:para>Due to how the PowerShell runtime handles non-HTTP(S) URIs, it is not recommended to write the URL yourself.  Please use this parameter instead.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -177,14 +190,27 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="named" aliases="Post, PostData, Query, QueryString">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>To send data to the Gopher server -- for example, when using a search engine -- the simplest way is to specify it with this parameter.  Any input will be automatically URL-encoded and appended to the URL.</maml:para>
+          <maml:para>Due to how the PowerShell runtime handles non-HTTP(S) URIs, it is not recommended to write the URL yourself.  Please use this parameter instead.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>None</maml:name>
+          <maml:name>System.String</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Any strings passed to this cmdlet will be used as the `-InputObject` parameter value.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -239,6 +265,13 @@ PS C:\&gt; Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri</dev:c
       <command:example>
         <maml:title>-------------------------- Example 4 --------------------------</maml:title>
         <dev:code>PS C:\&gt; Invoke-GopherRequest 'gopher://example.org/images/coolpic.gif' -OutFile 'coolpic.gif'</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 5 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Invoke-GopherRequest 'gopher://gopher.floodgap.com/7/v2/vs' -InputObject 'search query'</dev:code>
         <dev:remarks>
           <maml:para></maml:para>
         </dev:remarks>

@@ -9,7 +9,7 @@
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.2'
+ModuleVersion = '1.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -68,7 +68,7 @@ PrivateData = @{
 	PSData = @{
 
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'download', 'igr', 'Overbite', 'port70', 'RFC1436')
+		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'download', 'igr', 'Overbite', 'port70', 'RFC1436', 'small_web', 'cURL')
 
 		# A URL to the license for this module.
 		LicenseUri = 'https://www.gnu.org/licenses/agpl-3.0.en.html'
@@ -80,7 +80,7 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'Bug fixes for all!'
+		ReleaseNotes = 'This version supports query strings.'
 
 		# Prerelease string of this module
 		# Prerelease = ''

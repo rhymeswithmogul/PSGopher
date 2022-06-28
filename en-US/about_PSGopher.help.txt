@@ -11,7 +11,7 @@ LONG DESCRIPTION
 
 EXAMPLES
 Example 1: Viewing Contents
-    This example will connect to Floodgap's Gopher server and return the content.
+    This example connects to Floodgap's Gopher server and return the content.
 
     PS C:\> $response = Invoke-GopherRequest gopher://floodgap.com
     PS C:\> $response.Content
@@ -38,7 +38,7 @@ Example 2: Viewing Metadata
 Example 3: Downloading Files
     You can download files with the `-OutFile` parameter.
 
-    PS C:\> Invoke-GopherRequest 'gopher://example.org/pic.gif' -OutFile 'pic.gif'
+    PS C:\> Invoke-GopherRequest 'gopher://example.org/pic.gif' -OutFile pic.gif
 
 Example 4: Viewing Links
     The `Links` property of a successful Gopher request contains all of a page's

@@ -102,7 +102,10 @@ Function Invoke-GopherRequest {
 	#endregion (Content type negotiation)
 
 	#region Parse input parameters
-	If ($null -ne $InputObject) {
+	If ($null -eq $InputObject -or $InputObject.Length -eq 0) {
+		Write-Debug 'No query string detected.'
+	}
+	Else {
 		Write-Debug "Found query string=$InputObject"
 
 		$Encoder = [Web.HttpUtility]::ParseQueryString('')

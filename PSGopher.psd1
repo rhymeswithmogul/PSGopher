@@ -9,7 +9,7 @@
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.1.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -80,7 +80,7 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'This version supports query strings.'
+		ReleaseNotes = 'This version supports query strings properly.'
 
 		# Prerelease string of this module
 		# Prerelease = ''

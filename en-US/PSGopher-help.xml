@@ -19,7 +19,7 @@
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Url">
           <maml:name>Uri</maml:name>
           <maml:description>
-            <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" scheme only.  For secure Gopher, add the -UseSSL parameter instead.
+            <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" and "gophers" schemes only.
 This parameter is required. The parameter name Uri is optional.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">Uri</command:parameterValue>
@@ -155,7 +155,7 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Url">
         <maml:name>Uri</maml:name>
         <maml:description>
-          <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" scheme only.  For secure Gopher, add the -UseSSL parameter instead.
+          <maml:para>Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" and "gophers" schemes only.
 This parameter is required. The parameter name Uri is optional.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">Uri</command:parameterValue>

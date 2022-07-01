@@ -1,5 +1,7 @@
 NEXT VERSION
 - Add more extensions to the type guesser.
+- Changed the type guesser to use regular expressions.
+- Verbose and Debug preferences are now applied inside helper functions.
 
 VERSION 1.1.1
 - Fixes a bug where query strings might be erroneously detected and sent

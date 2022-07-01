@@ -96,10 +96,10 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'This version supports query strings properly.'
+		ReleaseNotes = 'Now supporting more file extensions!'
 
 		# Prerelease string of this module
-		# Prerelease = ''
+		Prerelease = 'git'
 
 		# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 		RequireLicenseAcceptance = $false

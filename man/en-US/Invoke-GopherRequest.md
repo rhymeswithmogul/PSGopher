@@ -137,7 +137,7 @@ Accept wildcard characters: False
 ```
 
 ### -Uri
-Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" scheme only.  For secure Gopher, add the -UseSSL parameter instead.
+Specifies the Uniform Resource Identifier (URI) of the Gopher resource to which this request is sent. Enter a URI.  This parameter supports the "gopher" and "gophers" schemes only.
         
 This parameter is required. The parameter name Uri is optional.
 

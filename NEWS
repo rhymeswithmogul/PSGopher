@@ -1,4 +1,5 @@
 NEXT VERSION
+- The non-standard gophers (Gopher + TLS) URL scheme is supported.
 - Add more extensions to the type guesser.
 - Changed the type guesser to use regular expressions.
 - Verbose and Debug preferences are now applied inside helper functions.

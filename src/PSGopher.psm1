@@ -25,6 +25,7 @@ Function Invoke-GopherRequest {
 		[Parameter(Mandatory, Position=0)]
 		[Alias('Url')]
 		[ValidateNotNullOrEmpty()]
+		[ValidatePattern('^gophers?:\/\/')]
 		[Uri] $Uri,
 
 		[Alias('UseTLS')]
@@ -52,7 +53,18 @@ Function Invoke-GopherRequest {
 	Set-StrictMode -Version Latest
 
 	#region Establish TCP connection.
-	Write-Verbose "Connecting to $($Uri.Host)"
+	# If we have the GopherS scheme, set UseSSL to true.
+	$UseSSL = $UseSSL -or ($Uri.Scheme -eq 'gophers')
+	
+	# Sometimes, the .NET runtime doesn't recognize which port we're supposed
+	# to be using -- especially if we use the non-standard "gophers" scheme for
+	# a TLS connection.  If so, we need to make a new URL with the port defined.
+	If ($Uri.Port -eq -1) {
+		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):70$($Uri.PathAndQuery)")
+		Write-Debug "New URL = $Uri"
+	}
+
+	Write-Verbose "Connecting to $($Uri.Host)$($UseSSL ? ' securely' : '')"
 	Try {
 		$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
 		$TcpStream = $TcpSocket.GetStream()
@@ -103,7 +115,7 @@ Function Invoke-GopherRequest {
 
 		Write-Debug "Stripped content type: was=$($Uri.AbsolutePath), now=$Path"
 
-		$Uri = [Uri]::new("gopher://$($Uri.Host):$($Uri.Port)$Path")
+		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):$($Uri.Port)$Path")
 	}
 
 	# Otherwise, let's try and guess -- if we have a file extension.

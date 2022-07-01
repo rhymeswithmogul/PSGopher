@@ -80,10 +80,10 @@ Gopher+ Directory Listings Are Plain Text
     be updated in a future release.
 
 Using SSL/TLS Requires a Secure Connection
-    Using the -UseSSL parameter will require a secure connection to the server.
-    If SSL/TLS cannot be negotiated, the cmdlet will intentionally fail. Seeing
-    as how Gopher predates SSL and TLS by many years, support for secure Gopher
-    may be fairly rare.
+    Using the -UseSSL parameter (or a gophers:// URL) will require that a secure
+    connection be made with the server.  If TLS cannot be negotiated, the cmdlet
+    will intentionally fail.   Seeing as how Gopher predates SSL and TLS by many
+    years, support for secure Gopher may be fairly rare.
 
     This cmdlet does not support opportunistic encryption (yet?), but it can be
     done by using pipeline chaining operators:
@@ -101,6 +101,8 @@ KEYWORDS
  - Gopher+
  - GopherPlus
  - SecureGopher
+ - SecureGopher+
+ - SecureGopherPlus
  - RFC1436
  - small web
  - WWW alternatives

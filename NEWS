@@ -1,3 +1,6 @@
+NEXT VERSION
+- Add more extensions to the type guesser.
+
 VERSION 1.1.1
 - Fixes a bug where query strings might be erroneously detected and sent
   to the server, causing resource lookups to fail.

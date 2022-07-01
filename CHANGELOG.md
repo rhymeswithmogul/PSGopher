@@ -1,10 +1,11 @@
 # PSGopher ChangeLog
 
-## Next Version
+## Version 1.2.0
 - The non-standard `gophers` (Gopher + TLS) URL scheme is now supported.
 - More extensions are supported by the type guesser.
 - Also, for ease of development, the type guesser now supports regular expressions internally.
 - `VerbosePreference` and `DebugPreference` are now supported in helper functions.
+- Improve URL query parameter handling.  Also, you may now use `-InputObject` with in-URL query parameters.
 
 ## Version 1.1.1
 Fixes a bug where query strings might be erroneously detected and sent to the server, causing resource lookups to fail.

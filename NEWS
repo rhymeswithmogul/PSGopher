@@ -1,5 +1,6 @@
-NEXT VERSION
+VERSION 1.2.0
 - The non-standard gophers (Gopher + TLS) URL scheme is supported.
+- You may use query parameters in addition to -InputObject.
 - Add more extensions to the type guesser.
 - Changed the type guesser to use regular expressions.
 - Verbose and Debug preferences are now applied inside helper functions.

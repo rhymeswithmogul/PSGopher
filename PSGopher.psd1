@@ -25,7 +25,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2'
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -70,7 +70,6 @@ FileList = @(
 	'src/PSGopher.psm1',
 	'AUTHORS',
 	'CHANGELOG.md',
-	'COPYING',
 	'INSTALL',
 	'LICENSE',
 	'NEWS',
@@ -99,7 +98,7 @@ PrivateData = @{
 		ReleaseNotes = 'Now supporting more file extensions!'
 
 		# Prerelease string of this module
-		Prerelease = 'git'
+		# Prerelease = 'git'
 
 		# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 		RequireLicenseAcceptance = $false

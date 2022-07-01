@@ -60,7 +60,8 @@ Function Invoke-GopherRequest {
 	# to be using -- especially if we use the non-standard "gophers" scheme for
 	# a TLS connection.  If so, we need to make a new URL with the port defined.
 	If ($Uri.Port -eq -1) {
-		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):70$($Uri.PathAndQuery)")
+		$Path, $Query = $Uri.PathAndQuery -Split '\?',2
+		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):70$Path$($Query ? "?$Query" : '')")
 		Write-Debug "New URL = $Uri"
 	}
 
@@ -105,15 +106,15 @@ Function Invoke-GopherRequest {
 
 	# If the user provided one, we'll use that.
 	# But it needs to be removed from the URI.
-	If ($Uri.AbsolutePath -CMatch "^\/[0123456789+gIT:;<dhis]") {
-		$ContentTypeExpected = $Uri.AbsolutePath[1]
+	If ($Uri.PathAndQuery -CMatch "^\/[0123456789+gIT:;<dhis]") {
+		$ContentTypeExpected = $Uri.PathAndQuery[1]
 
 		# The code may have removed the leading slash.  Put that back.
 		# If there was already one, remove it.
-		$Path = $Uri.AbsolutePath.Substring(2)
+		$Path = $Uri.PathAndQuery.Substring(2)
 		$Path = "/$Path" -Replace '//','/'
 
-		Write-Debug "Stripped content type: was=$($Uri.AbsolutePath), now=$Path"
+		Write-Debug "Stripped content type: was=$($Uri.PathAndQuery), now=$Path"
 
 		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):$($Uri.Port)$Path")
 	}
@@ -132,23 +133,28 @@ Function Invoke-GopherRequest {
 
 	#region Parse input parameters
 	If ($null -eq $InputObject -or $InputObject.Length -eq 0) {
-		Write-Debug 'No query string detected.'
+		Write-Debug 'No additional query string detected.'
 	}
 	Else {
-		Write-Debug "Found query string=$InputObject"
+		Write-Debug "Found additional query string=$InputObject"
 
 		$Encoder = [Web.HttpUtility]::ParseQueryString('')
 		$Encoder.Add($null, $InputObject)
 		$EncodedInput = $Encoder.ToString() -Replace '\+','%20'	# Gopher requires URL (percent) encoding for spaces.
 		
-		Write-Debug "Encoded query string=$EncodedInput"
+		Write-Debug "Encoded additional query string=$EncodedInput"
 
-		$Uri = [Uri]::new($Uri.ToString() + '?' + $EncodedInput)
+		# If there was already a query string specified in the URL, we will send
+		# both of them, with the URL taking precedence.
+		If ($Uri.Query) {
+			Write-Debug "Found existing query string=$($Uri.Query)"
+		}
+		$Uri = [Uri]::new($Uri.ToString() + ($Uri.Query ? '&' : '?') + $EncodedInput)			
 	}
 	#endregion
 
 	#region Send request
-	$ToSend = $Uri.AbsolutePath
+	$ToSend = $Uri.PathAndQuery
 	If ($Info) {
 		If ($ContentTypeExpected -eq 1) {
 			$ToSend += "`t$"

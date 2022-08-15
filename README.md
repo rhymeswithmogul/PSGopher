@@ -1,5 +1,7 @@
+[![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSGopher?include_prereleases)](https://powershellgallery.com/packages/PSGopher/) [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSGopher)](https://powershellgallery.com/packages/v/PSGopher)
+
 # PSGopher
-A Gopher/Gopher+/SecureGopher client written in PowerShell.
+A Gopher/Gopher+/SecureGopher client written for Powershell 7 and newer.
 
 ## Installation
 Grab it from PowerShell Gallery with: `Install-Module PSGopher`

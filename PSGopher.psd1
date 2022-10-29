@@ -25,7 +25,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.0'
+ModuleVersion = '1.3.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -83,7 +83,7 @@ PrivateData = @{
 	PSData = @{
 
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'SecureGopher+', 'GopherS', 'download', 'igr', 'Overbite', 'port70', 'RFC1436', 'small_web', 'cURL', 'TLS')
+		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'SecureGopher+', 'GopherS', 'SGopher', 'Gopher-TLS', 'download', 'igr', 'Overbite', 'port70', 'RFC1436', 'small_web', 'cURL', 'SSL', 'TLS')
 
 		# A URL to the license for this module.
 		LicenseUri = 'https://www.gnu.org/licenses/agpl-3.0.en.html'
@@ -95,7 +95,7 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'Now supporting more file extensions!'
+		ReleaseNotes = 'Now with opportunistic TLS!'
 
 		# Prerelease string of this module
 		# Prerelease = 'git'

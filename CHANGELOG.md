@@ -1,5 +1,9 @@
 # PSGopher ChangeLog
 
+## Version 1.3.0
+- Opportunistic TLS can be enabled with the `-TrySSL` parameter.
+- The non-standard `sgopher` and `gopher+tls` URL schemes are now supported.
+
 ## Version 1.2.0
 - The non-standard `gophers` (Gopher + TLS) URL scheme is now supported.
 - More extensions are supported by the type guesser.

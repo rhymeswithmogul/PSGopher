@@ -14,13 +14,13 @@ Gets content from a Gopher or Gopher+ server on the Internet.
 
 ### ToScreen (Default)
 ```
-Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-Info] [-Views <String[]>] [-Encoding <String>]
+Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-TrySSL] [-Info] [-Views <String[]>] [-Encoding <String>]
  [-InputObject <String>] [<CommonParameters>]
 ```
 
 ### OutFile
 ```
-Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-Info] [-Views <String[]>] [-Encoding <String>]
+Invoke-GopherRequest [-Uri] <Uri> [-UseSSL] [-TrySSL] [-Info] [-Views <String[]>] [-Encoding <String>]
  [-OutFile <String>] [-InputObject <String>] [<CommonParameters>]
 ```
 
@@ -48,7 +48,7 @@ Floodgap has served the gopher community since 1999
 The `-Info` parameter will retrieve attributes about a resource, if the server supports Gopher+.
 
 ```powershell
-PS> igr -Info gopher://colincogle.name/blog/powershell-7/powershell-7-for-programmers.txt
+PS> igr -Info gopher+tls://colincogle.name/blog/powershell-7/powershell-7-for-programmers.txt
 
 INFO                                                                                                       ADMIN
 ----                                                                                                       -----                     
@@ -60,9 +60,12 @@ To save typing, `igr` is an alias for this command.
 ### Example 3
 The `-UseSSL` parameter will require SSL/TLS or the cmdlet will fail.  By using pipeline chaining operators, you can have the command retry without SSL/TLS.
 
+Alternatively, you can use `-TrySSL` to allow fallback to a regular non-secured connection.
+
 ```powershell
 PS C:\> $uri = 'gopher://floodgap.org'
-PS C:\> Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri
+PS C:\> Invoke-GopherRequest $uri -TrySSL | Select -ExpandProperty Protocol
+Gopher
 ```
 
 ### Example 4
@@ -158,10 +161,12 @@ Requires this Gopher connection to use SSL/TLS.  All SSL/TLS protocols enabled i
 
 If the remote server does not support secure connections, this cmdlet will intentionally fail.
 
+Instead of using this parameter, you can prefix your URL with gophers://, sgopher://, or gopher+tls://.  If one of those URL schemes is detected, this parameter is implied.
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: UseTLS
+Aliases: UseTLS, RequireTLS, RequireSSL
 
 Required: False
 Position: Named
@@ -202,6 +207,23 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
+### -TrySSL
+Attempt to connect to this Gopher server securely.  However, unlike `-UseSSL`, this will allow falling back to a regular non-secured connection.
+
+If the `-UseSSL` parameter is specified, or if the URL scheme is gophers://, sgopher://, or gopher+tls://, then a secure connection is required and this parameter has no effect.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: TryTLS, OpportunisticTLS, OpportunisticSSL
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -213,9 +235,12 @@ Any strings passed to this cmdlet will be used as the `-InputObject` parameter v
 ## OUTPUTS
 
 ### System.Object
+Gopher request data will be returned, in the style of `Invoke-WebRequest`.
+
 ## NOTES
 
 ## RELATED LINKS
 
 [about_PSGopher](about_PSGopher)
+[igr](igr)
 [Invoke-WebRequest](Invoke-WebRequest)

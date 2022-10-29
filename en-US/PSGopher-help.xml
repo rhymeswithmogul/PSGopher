@@ -74,11 +74,12 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS, RequireTLS, RequireSSL">
           <maml:name>UseSSL</maml:name>
           <maml:description>
             <maml:para>Requires this Gopher connection to use SSL/TLS.  All SSL/TLS protocols enabled in the current session are allowed.</maml:para>
             <maml:para>If the remote server does not support secure connections, this cmdlet will intentionally fail.</maml:para>
+            <maml:para>Instead of using this parameter, you can prefix your URL with gophers://, sgopher://, or gopher+tls://.  If one of those URL schemes is detected, this parameter is implied.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -110,6 +111,18 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="TryTLS, OpportunisticTLS, OpportunisticSSL">
+          <maml:name>TrySSL</maml:name>
+          <maml:description>
+            <maml:para>Attempt to connect to this Gopher server securely.  However, unlike `-UseSSL`, this will allow falling back to a regular non-secured connection.</maml:para>
+            <maml:para>If the `-UseSSL` parameter is specified, or if the URL scheme is gophers://, sgopher://, or gopher+tls://, then a secure connection is required and this parameter has no effect.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
@@ -165,11 +178,12 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="UseTLS, RequireTLS, RequireSSL">
         <maml:name>UseSSL</maml:name>
         <maml:description>
           <maml:para>Requires this Gopher connection to use SSL/TLS.  All SSL/TLS protocols enabled in the current session are allowed.</maml:para>
           <maml:para>If the remote server does not support secure connections, this cmdlet will intentionally fail.</maml:para>
+          <maml:para>Instead of using this parameter, you can prefix your URL with gophers://, sgopher://, or gopher+tls://.  If one of those URL schemes is detected, this parameter is implied.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -203,6 +217,19 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="TryTLS, OpportunisticTLS, OpportunisticSSL">
+        <maml:name>TrySSL</maml:name>
+        <maml:description>
+          <maml:para>Attempt to connect to this Gopher server securely.  However, unlike `-UseSSL`, this will allow falling back to a regular non-secured connection.</maml:para>
+          <maml:para>If the `-UseSSL` parameter is specified, or if the URL scheme is gophers://, sgopher://, or gopher+tls://, then a secure connection is required and this parameter has no effect.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes>
       <command:inputType>
@@ -220,7 +247,7 @@ This parameter is required. The parameter name Uri is optional.</maml:para>
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Gopher request data will be returned, in the style of `Invoke-WebRequest`.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -245,7 +272,7 @@ Floodgap has served the gopher community since 1999
       </command:example>
       <command:example>
         <maml:title>-------------------------- Example 2 --------------------------</maml:title>
-        <dev:code>PS&gt; igr -Info gopher://colincogle.name/blog/powershell-7/powershell-7-for-programmers.txt
+        <dev:code>PS&gt; igr -Info gopher+tls://colincogle.name/blog/powershell-7/powershell-7-for-programmers.txt
 
 INFO                                                                                                       ADMIN
 ----                                                                                                       -----                     
@@ -257,7 +284,8 @@ INFO                                                                            
       <command:example>
         <maml:title>-------------------------- Example 3 --------------------------</maml:title>
         <dev:code>PS C:\&gt; $uri = 'gopher://floodgap.org'
-PS C:\&gt; Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri</dev:code>
+PS C:\&gt; Invoke-GopherRequest $uri -TrySSL | Select -ExpandProperty Protocol
+Gopher</dev:code>
         <dev:remarks>
           <maml:para></maml:para>
         </dev:remarks>
@@ -284,6 +312,10 @@ PS C:\&gt; Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri</dev:c
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>about_PSGopher</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>igr</maml:linkText>
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>

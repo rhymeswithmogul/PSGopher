@@ -25,16 +25,20 @@ Function Invoke-GopherRequest {
 		[Parameter(Mandatory, Position=0)]
 		[Alias('Url')]
 		[ValidateNotNullOrEmpty()]
-		[ValidatePattern('^gophers?:\/\/')]
+		[ValidatePattern('^(gophers?|sgopher|gopher\+tls):\/\/')]
 		[Uri] $Uri,
 
-		[Alias('UseTLS')]
+		[Alias('UseTLS', 'RequireTLS', 'RequireSSL')]
 		[Switch] $UseSSL,
+
+		[Alias('TryTLS', 'OpportunisticTLS', 'OpportunisticSSL')]
+		[Switch] $TrySSL,
 
 		[Alias('Abstract','Admin','Attributes','Information')]
 		[Switch] $Info,
 
 		[ValidatePattern("[a-z]+\/.+")]
+		[AllowNull()]
 		[String[]] $Views,
 
 		[ValidateSet('ASCII','UTF7','UTF8','UTF16','Unicode','UTF32')]
@@ -50,15 +54,13 @@ Function Invoke-GopherRequest {
 		[String] $InputObject
 	)
 
-	Set-StrictMode -Version Latest
-
 	#region Establish TCP connection.
-	# If we have the GopherS scheme, set UseSSL to true.
-	$UseSSL = $UseSSL -or ($Uri.Scheme -eq 'gophers')
+	# If we have a secure URL scheme, set UseSSL to true.
+	$UseSSL = $UseSSL -or ($Uri.Scheme -In @('gophers','sgopher','gopher+tls'))
 	
 	# Sometimes, the .NET runtime doesn't recognize which port we're supposed
-	# to be using -- especially if we use the non-standard "gophers" scheme for
-	# a TLS connection.  If so, we need to make a new URL with the port defined.
+	# to be using -- especially if we use a Gopher-TLS scheme for a secure
+	# connection.  If so, we need to make a new URL with the port defined.
 	If ($Uri.Port -eq -1) {
 		$Path, $Query = $Uri.PathAndQuery -Split '\?',2
 		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):70$Path$($Query ? "?$Query" : '')")
@@ -70,7 +72,7 @@ Function Invoke-GopherRequest {
 		$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
 		$TcpStream = $TcpSocket.GetStream()
 		$TcpStream.ReadTimeout = 2000 #milliseconds
-		If ($UseSSL) {
+		If ($UseSSL -or $TrySSL) {
 			Write-Debug 'Upgrading connection to TLS.'
 			$secureStream = [Net.Security.SslStream]::new($TcpStream, $false)
 			$secureStream.AuthenticateAsClient($Uri.Host)
@@ -79,24 +81,49 @@ Function Invoke-GopherRequest {
 	}
 	Catch {
 		$msg = "Could not connect to $($Uri.Host):$($Uri.Port ?? 70)"
-		If ($UseSSL) {
+		If ($UseSSL -or $TrySSL) {
 			$msg += ' with SSL/TLS'
 		}
-		$msg += '.  Aborting.'
 
-		# Throw a non-terminating error so that $? is set properly and the
-		# pipeline can continue.  This will allow chaining operators to work as
-		# intended.  Should a future version of this module support pipeline
-		# input, that will let this cmdlet keep running with other input URIs.
-		$er = [Management.Automation.ErrorRecord]::new(
-			[Net.WebException]::new($msg),
-			'TlsConnectionFailed',
-			[Management.Automation.ErrorCategory]::ConnectionError,
-			$Uri
-		)
-		$er.CategoryInfo.Activity = 'NegotiateTlsConnection'
-		$PSCmdlet.WriteError($er)
-		Return $null
+		# If we're using -TrySSL, then we'll retry without encryption.  Else,s
+		# If we're using -UseSSL, then fail the connection.
+		If ($UseSSL) {
+			$msg += '.  Aborting.'
+
+			# Throw a non-terminating error so that $? is set properly and the
+			# pipeline can continue.  This will allow chaining operators to work as
+			# intended.  Should a future version of this module support pipeline
+			# input, that will let this cmdlet keep running with other input URIs.
+			$er = [Management.Automation.ErrorRecord]::new(
+				[Net.WebException]::new($msg),
+				'TlsConnectionFailed',
+				[Management.Automation.ErrorCategory]::ConnectionError,
+				$Uri
+			)
+			$er.CategoryInfo.Activity = 'NegotiateTlsConnection'
+			$PSCmdlet.WriteError($er)
+			Return $null
+		}
+		ElseIf ($TrySSL) {
+			Write-Verbose "$msg.  Retrying with a non-secured connection."
+			$NewParameters = @{
+				'Uri' = $Uri
+				'Info' = $Info
+				'Views' = $Views ?? @()	# not sure why this is needed
+				'Encoding' = $Encoding
+				'InputObject' = $InputObject
+				'TrySSL' = $null
+				'UseSSL' = $null
+			}
+
+			If ($PSCmdlet.ParameterSetName -eq 'OutFile') {
+				$NewParameters.'OutFile' = $OutFile
+			}
+
+			Remove-Variable -Name 'SecureStream' -Force
+			Return (Invoke-GopherRequest @NewParameters)
+			Exit
+		}
 	}
 	#endregion (Establish TCP connection)
 
@@ -353,8 +380,13 @@ Function Invoke-GopherRequest {
 	Else {
 		# Let's tell the user how we fetched this resource/attributes.
 		# This will be more useful when I implement opportunistic TLS.
-		$Protocol = ($Info -or $Views ? 'Gopher+' : 'Gopher')
-		$Protocol = ($UseSSL          ? "Secure$Protocol" : $Protocol)
+		$Protocol = 'Gopher'
+		If ($Info -or $Views) {
+			$Protocol = 'Gopher+'
+		}
+		If ((Test-Path 'variable:\SecureStream') -and ($null -ne $SecureStream)) {
+			$Protocol = "Secure$Protocol"
+		}
 
 		Return [PSCustomObject]@{
 			'Protocol' = $Protocol

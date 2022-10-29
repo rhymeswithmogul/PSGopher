@@ -79,16 +79,28 @@ Gopher+ Directory Listings Are Plain Text
     doing this on a menu/Gophermap or directory will return plain text. This may
     be updated in a future release.
 
-Using SSL/TLS Requires a Secure Connection
-    Using the -UseSSL parameter (or a gophers:// URL) will require that a secure
-    connection be made with the server.  If TLS cannot be negotiated, the cmdlet
-    will intentionally fail.   Seeing as how Gopher predates SSL and TLS by many
-    years, support for secure Gopher may be fairly rare.
+Using SSL/TLS, Where Supported
+    There is an unofficial specification for wrapping Gopher connections in TLS.
+    This cmdlet supports that in two ways:
 
-    This cmdlet does not support opportunistic encryption (yet?), but it can be
-    done by using pipeline chaining operators:
+    1. The -TrySSL parameter will connect with opportunistic encryption. First,
+       Invoke-GopherRequest will attempt to connect to the server securely. If
+       it fails, it will fall back to a regular non-secured connection.
 
-    PS C:\> Invoke-GopherRequest $uri -UseSSL || Invoke-GopherRequest $uri
+    2. The -UseSSL parameter will connect with mandatory encryption. Should the
+       server fail to negotiate a TLS session, Invoke-GopherRequest will abort.
+
+    Supplying a URL with a scheme of gophers, sgopher, or gopher+tls is the same
+    as using the -UseSSL parameter.
+    
+    Note that Gopher predates SSL and TLS.  What enthusiasts call "SecureGopher" 
+    did not exist back in Gopher's heyday; it's a recent invention, and there is
+    no official standard.  Thus, few servers support secure connections. The TLS
+    implementation used only supports encryption.  Unlike Web browsers, there is
+    no certificate presented and no server authentication is performed (not even
+    TOFU like in Gemini -- there's nothing to check). While it will encrypt your
+    traffic, you should expect no privacy or security otherwise.
+    
 
 SEE ALSO
  - `Invoke-WebRequest`, which this cmdlet is modeled after.

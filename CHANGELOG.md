@@ -1,5 +1,8 @@
 # PSGopher ChangeLog
 
+## Version 1.3.2
+- When using SecureGopher, the debug stream now shows the TLS protocol version and negotiated cipher/ciphersuite.
+
 ## Version 1.3.1
 - Updated an error in the conceptual help.  SecureGopher does, in fact, present a certificate.
 

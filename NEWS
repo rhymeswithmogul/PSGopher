@@ -1,3 +1,7 @@
+VERSION 1.3.2
+- The SecureGopher TLS connection information is now shown in the debug
+  stream.
+
 VERSION 1.3.1
 - Update conceptual help.
 

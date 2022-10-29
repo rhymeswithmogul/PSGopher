@@ -78,7 +78,6 @@ Function Invoke-GopherRequest {
 			$secureStream.AuthenticateAsClient($Uri.Host)
 			$TcpStream = $secureStream
 		}
-		#[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
 		Write-Debug "Connected with $($TcpStream.SslProtocol) using $($TcpStream.NegotiatedCipherSuite)."
 	}
 	Catch {

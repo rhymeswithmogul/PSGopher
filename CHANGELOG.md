@@ -2,6 +2,7 @@
 
 ## Version 1.3.2
 - When using SecureGopher, the debug stream now shows the TLS protocol version and negotiated cipher/ciphersuite.
+- Updated an error in the conceptual help.  The .NET runtime does indeed validate server certificates, even if this app does not do it explicitly.
 
 ## Version 1.3.1
 - Updated an error in the conceptual help.  SecureGopher does, in fact, present a certificate.

@@ -1,6 +1,8 @@
 VERSION 1.3.2
 - The SecureGopher TLS connection information is now shown in the debug
   stream.
+- Updated conceptual help to note that the .NET runtime does validate a
+  server's certificate.
 
 VERSION 1.3.1
 - Update conceptual help.

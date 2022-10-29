@@ -97,7 +97,8 @@ Using SSL/TLS, Where Supported
     did not exist back in Gopher's heyday; it's a recent invention, and there is
     no official standard.  Thus, few servers support secure connections.
 
-    PSGopher does not currently perform any sort of certificate validation.
+    The .NET runtime performs certificate validation.  The server must present a
+    valid certificate in order for the TLS connection to succeed.
 
 SEE ALSO
  - `Invoke-WebRequest`, which this cmdlet is modeled after.

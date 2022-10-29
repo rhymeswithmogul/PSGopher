@@ -84,10 +84,10 @@ ABSTRACT : Colin Cogle's PGP keys and signing policy.
 ```
 
 ### Downloading Files
-Finally, you can also use PSGopher's `-OutFile` parameter to download files:
+Finally, you can also use PSGopher's `-OutFile` parameter to download files (even with opportunistic encryption):
 
 ```powershell
-PS /Users/colin> Invoke-GopherRequest -UseSSL gopher://colincogle.name/0downloads/pgp.txt -OutFile pgp.txt
+PS /Users/colin> Invoke-GopherRequest -TrySSL gopher://colincogle.name/0downloads/pgp.txt -OutFile pgp.txt
 PS /Users/colin> Get-Item pgp.txt                            
 
     Directory: /Users/colin

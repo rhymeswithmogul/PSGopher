@@ -95,12 +95,9 @@ Using SSL/TLS, Where Supported
     
     Note that Gopher predates SSL and TLS.  What enthusiasts call "SecureGopher" 
     did not exist back in Gopher's heyday; it's a recent invention, and there is
-    no official standard.  Thus, few servers support secure connections. The TLS
-    implementation used only supports encryption.  Unlike Web browsers, there is
-    no certificate presented and no server authentication is performed (not even
-    TOFU like in Gemini -- there's nothing to check). While it will encrypt your
-    traffic, you should expect no privacy or security otherwise.
-    
+    no official standard.  Thus, few servers support secure connections.
+
+    PSGopher does not currently perform any sort of certificate validation.
 
 SEE ALSO
  - `Invoke-WebRequest`, which this cmdlet is modeled after.

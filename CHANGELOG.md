@@ -1,5 +1,8 @@
 # PSGopher ChangeLog
 
+## Version 1.3.1
+- Updated an error in the conceptual help.  SecureGopher does, in fact, present a certificate.
+
 ## Version 1.3.0
 - Opportunistic TLS can be enabled with the `-TrySSL` parameter.
 - The non-standard `sgopher` and `gopher+tls` URL schemes are now supported.

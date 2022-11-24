@@ -65,6 +65,9 @@ AliasesToExport = @('igr')
 
 # List of all files packaged with this module
 FileList = @(
+	'en-US/about_Gopher.help.txt',
+	'en-US/about_Gopher+.help.txt',
+	'en-US/about_GopherUriScheme.help.txt',
 	'en-US/about_PSGopher.help.txt',
 	'en-US/PSGopher-help.xml',
 	'src/PSGopher.psm1',

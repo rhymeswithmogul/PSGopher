@@ -1,28 +1,31 @@
 # PSGopher ChangeLog
 
+## Not yet released
+-  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.
+
 ## Version 1.3.2
-- When using SecureGopher, the debug stream now shows the TLS protocol version and negotiated cipher/ciphersuite.
-- Updated an error in the conceptual help.  The .NET runtime does indeed validate server certificates, even if this app does not do it explicitly.
+-  When using SecureGopher, the debug stream now shows the TLS protocol version and negotiated cipher/ciphersuite.
+-  Updated an error in the conceptual help.  The .NET runtime does indeed validate server certificates, even if this app does not do it
 
 ## Version 1.3.1
-- Updated an error in the conceptual help.  SecureGopher does, in fact, present a certificate.
+-  Updated an error in the conceptual help.  SecureGopher does, in fact, present a certificate.
 
 ## Version 1.3.0
-- Opportunistic TLS can be enabled with the `-TrySSL` parameter.
-- The non-standard `sgopher` and `gopher+tls` URL schemes are now supported.
+-  Opportunistic TLS can be enabled with the `-TrySSL` parameter.
+-  The non-standard `sgopher` and `gopher+tls` URL schemes are now supported.
 
 ## Version 1.2.0
-- The non-standard `gophers` (Gopher + TLS) URL scheme is now supported.
-- More extensions are supported by the type guesser.
-- Also, for ease of development, the type guesser now supports regular expressions internally.
-- `VerbosePreference` and `DebugPreference` are now supported in helper functions.
-- Improve URL query parameter handling.  Also, you may now use `-InputObject` with in-URL query parameters.
+-  The non-standard `gophers` (Gopher + TLS) URL scheme is now supported.
+-  More extensions are supported by the type guesser.
+-  Also, for ease of development, the type guesser now supports regular expressions internally.
+-  `VerbosePreference` and `DebugPreference` are now supported in helper functions.
+-  Improve URL query parameter handling.  Also, you may now use `-InputObject` with in-URL query parameters.
 
 ## Version 1.1.1
 Fixes a bug where query strings might be erroneously detected and sent to the server, causing resource lookups to fail.
 
 ## Version 1.1.0
-- Adds support for Gopher query strings via the `-InputObject` parameter.  Previously, one would have to make their own URL by hand to do this.
+Adds support for Gopher query strings via the `-InputObject` parameter.  Previously, one would have to make their own URL by hand to do this.
 
 ## Version 1.0.1
 Documentation updates.

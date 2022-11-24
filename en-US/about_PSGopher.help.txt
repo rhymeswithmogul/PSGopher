@@ -101,9 +101,8 @@ Using SSL/TLS, Where Supported
     valid certificate in order for the TLS connection to succeed.
 
 SEE ALSO
- - `Invoke-WebRequest`, which this cmdlet is modeled after.
- - RFC 1436, "The Internet Gopher Protocol". https://tools.ietf.org/html/rfc1436
- - RFC 4266, "The Gopher URI Scheme".  https://tools.ietf.org/html/rfc4266
+ - about_Gopher
+ - about_GopherUriScheme
  - Gopher+.  http://gopherinfo.somnolescent.net/documentation/gopherplus.html
 
 KEYWORDS
@@ -113,7 +112,9 @@ KEYWORDS
  - SecureGopher
  - SecureGopher+
  - SecureGopherPlus
- - RFC1436
+ - retrocomputing
+ - RFC 1436
+ - RFC 4266
  - small web
  - WWW alternatives
 

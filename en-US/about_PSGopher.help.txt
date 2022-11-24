@@ -103,7 +103,7 @@ Using SSL/TLS, Where Supported
 SEE ALSO
  - about_Gopher
  - about_GopherUriScheme
- - Gopher+.  http://gopherinfo.somnolescent.net/documentation/gopherplus.html
+ - about_Gopher+
 
 KEYWORDS
  - Gopher

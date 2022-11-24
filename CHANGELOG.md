@@ -1,6 +1,6 @@
 # PSGopher ChangeLog
 
-## Not yet released
+## Version 1.3.3
 -  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.
 
 ## Version 1.3.2

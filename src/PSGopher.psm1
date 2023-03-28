@@ -316,7 +316,12 @@ Function Invoke-GopherRequest {
 	}
 	# If this is anything non-binary and not a menu, simply return it.
 	ElseIf ($ContentTypeExpected -ne '1') {
-		$Content = $response
+		If (-Not $Views) {
+			$Content = $response
+		}
+		Else {
+			$Content = ($response -Split "`r`n",2)[1]
+		}
 	}
 	Else {
 		$response -Split "(`r`n)" | ForEach-Object {

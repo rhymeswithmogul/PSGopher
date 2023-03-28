@@ -15,7 +15,6 @@
 
 #Requires -Modules @{ModuleName='Pester'; ModuleVersion='5.0.0'}
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Gophermap',			Justification='Variable is used in another scope.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'ModuleHelpFile',	Justification='Variable is used in another scope.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'psm1File',			Justification='Variable is used in another scope.')]
 Param()
@@ -57,42 +56,70 @@ Describe 'Invoke-GopherRequest' {
 	BeforeAll {
 		$script:Gophermap = $null
 		$script:gif = $null
+		$script:SHA256 = [Security.Cryptography.SHA256]::Create()
 	}
-	It 'Can download a text file via Gopher' {
+	It 'Can fetch a text file' {
 		$TxtTest = (Invoke-GopherRequest -Uri 'gopher://colincogle.name/0/PSGopherTest/PSGopherTest.txt')
 		$TxtTest.ContentType | Should -Be '0'
 		$TxtTest.Images | Should -BeNullOrEmpty
 		$TxtTest.Links | Should -BeNullOrEmpty
 		$TxtTest.Protocol | Should -Be 'Gopher'
 		$TxtTest.RawContent | Should -Be $TxtTest.Content
+		$TxtTest.RawContentLength | Should -Be 403
+
+		# Hash the stream for correctness.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'PSGopherTest.txt')).Hash
+		$ByteArray1 = [Text.Encoding]::UTF8.GetBytes($TxtTest.Content)
+		$ByteArray2 = [Text.Encoding]::UTF8.GetBytes($TxtTest.RawContent)
+		[BitConverter]::ToString($SHA256.ComputeHash($ByteArray1)) -Replace '-' | Should -Be $GoodHash
+		[BitConverter]::ToString($SHA256.ComputeHash($ByteArray2)) -Replace '-' | Should -Be $GoodHash
 	}
-	It 'Can download a text file via SecureGopher' {
+	It 'Can fetch a text file securely' {
 		$SecureTxtTest = (Invoke-GopherRequest -Uri 'gophers://colincogle.name/0/PSGopherTest/PSGopherTest.txt')
 		$SecureTxtTest.ContentType | Should -Be '0'
 		$SecureTxtTest.Images | Should -BeNullOrEmpty
 		$SecureTxtTest.Links | Should -BeNullOrEmpty
 		$SecureTxtTest.Protocol | Should -Be 'SecureGopher'
 		$SecureTxtTest.RawContent | Should -Be $SecureTxtTest.Content
+		$SecureTxtTest.RawContentLength | Should -Be 403
+
+		# Hash the stream for correctness.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'PSGopherTest.txt')).Hash
+		$ByteArray1 = [Text.Encoding]::UTF8.GetBytes($SecureTxtTest.Content)
+		$ByteArray2 = [Text.Encoding]::UTF8.GetBytes($SecureTxtTest.RawContent)
+		[BitConverter]::ToString($SHA256.ComputeHash($ByteArray1)) -Replace '-' | Should -Be $GoodHash
+		[BitConverter]::ToString($SHA256.ComputeHash($ByteArray2)) -Replace '-' | Should -Be $GoodHash
 	}
-	It 'Can fetch binaries correctly' {
-		$GifTest = (Invoke-GopherRequest -Uri 'gopher://colincogle.name/g/PSGopherTest/gopher.gif')
-		$GifTest.ContentType | Should -Be 'g'
-		$GifTest.RawContentLength | Should -Be 16829
+	It 'Can download a text file correctly' {
+		$TempFile = New-TemporaryFile
+		Invoke-GopherRequest -Uri 'gophers://colincogle.name/0/PSGopherTest/PSGopherTest.txt' -OutFile $TempFile
 
 		# Hash the file for correctness.
-		# This is the same gopher.gif file that is included in the tests/ folder.
-		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'gopher.gif')).Hash
+		# This is the same PSGopherTest.txt file that is included in the tests/ folder.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'PSGopherTest.txt')).Hash
+		(Get-FileHash -Path $TempFile).Hash | Should -Be $GoodHash
+
+		Remove-Item -Path $TempFile -ErrorAction SilentlyContinue
+	}
+	It 'Can fetch binaries correctly' {
+		$imgTest = (Invoke-GopherRequest -Uri 'gopher://colincogle.name/I/PSGopherTest/gopher.avif')
+		$imgTest.ContentType | Should -Be 'I'
+		$imgTest.RawContentLength | Should -Be 2300
+
+		# Hash the stream for correctness.
+		# This is the same gopher.avif file that is included in the tests/ folder.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'gopher.avif')).Hash
 		$SHA256 = [Security.Cryptography.SHA256]::Create()
-		[BitConverter]::ToString($SHA256.ComputeHash($GifTest.Content)) -Replace '-' | Should -Be $GoodHash
-		[BitConverter]::ToString($SHA256.ComputeHash($GifTest.RawContent)) -Replace '-' | Should -Be $GoodHash
+		[BitConverter]::ToString($SHA256.ComputeHash($imgTest.Content)) -Replace '-' | Should -Be $GoodHash
+		[BitConverter]::ToString($SHA256.ComputeHash($imgTest.RawContent)) -Replace '-' | Should -Be $GoodHash
 	}
 	It 'Can download binaries correctly' {
 		$TempFile = New-TemporaryFile
-		Invoke-GopherRequest -Uri 'gopher://colincogle.name/g/PSGopherTest/gopher.gif' -OutFile $TempFile
+		Invoke-GopherRequest -Uri 'gopher://colincogle.name/I/PSGopherTest/gopher.avif' -OutFile $TempFile
 
 		# Hash the file for correctness.
-		# This is the same gopher.gif file that is included in the tests/ folder.
-		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'gopher.gif')).Hash
+		# This is the same gopher.avif file that is included in the tests/ folder.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'gopher.avif')).Hash
 		(Get-FileHash -Path $TempFile).Hash | Should -Be $GoodHash
 
 		Remove-Item -Path $TempFile -ErrorAction SilentlyContinue
@@ -103,28 +130,28 @@ Describe 'Invoke-GopherRequest' {
 	}
 	It 'Can parse a Gophermap' {
 		$Gophermap.ContentType | Should -Be '1'
-		$Gophermap.Images.Count | Should -Be 1
-		$GopherMap.Links.Count | Should -Be 3
+		$Gophermap.Images.Count | Should -Be 2
+		$GopherMap.Links.Count | Should -Be 4
 	}
 	It 'Can parse images' {
-		$gif = $Gophermap.Images[0]
-		$gif.href | Should -Be 'gopher://colincogle.name//PSGopherTest/gopher.gif'
-		$gif.Type | Should -Be 'g'
-		$gif.Description | Should -Be 'This is an animated GIF of a Gopher.'
-		$gif.Resource | Should -Be '//PSGopherTest/gopher.gif'
-		$gif.Server | Should -Be 'colincogle.name'
-		$gif.Port | Should -Be 70
-		$gif.UrlLink | Should -BeFalse
+		$img = $Gophermap.Images | Where-Object href -Like '*.avif'
+		$img.href | Should -Be 'gopher://colincogle.name//PSGopherTest/gopher.avif'
+		$img.Type | Should -Be 'I'
+		$img.Description | Should -Be 'This is an image of a Gopher (AVIF).'
+		$img.Resource | Should -Be '//PSGopherTest/gopher.avif'
+		$img.Server | Should -Be 'colincogle.name'
+		$img.Port | Should -Be 70
+		$img.UrlLink | Should -BeFalse
 	}
 	It 'Can parse Gopher links' {
-		$gif = $Gophermap.Links | Where-Object Type -eq 'g'
-		$gif.href | Should -Be 'gopher://colincogle.name//PSGopherTest/gopher.gif'
-		$gif.Type | Should -Be 'g'
-		$gif.Description | Should -Be 'This is an animated GIF of a Gopher.'
-		$gif.Resource | Should -Be '//PSGopherTest/gopher.gif'
-		$gif.Server | Should -Be 'colincogle.name'
-		$gif.Port | Should -Be 70
-		$gif.UrlLink | Should -BeFalse
+		$img = $Gophermap.Links | Where-Object href -Like '*.avif'
+		$img.href | Should -Be 'gopher://colincogle.name//PSGopherTest/gopher.avif'
+		$img.Type | Should -Be 'I'
+		$img.Description | Should -Be 'This is an image of a Gopher (AVIF).'
+		$img.Resource | Should -Be '//PSGopherTest/gopher.avif'
+		$img.Server | Should -Be 'colincogle.name'
+		$img.Port | Should -Be 70
+		$img.UrlLink | Should -BeFalse
 	}
 	It 'Can parse URL links' {
 		$github = $Gophermap.Links | Where-Object Type -eq 'h'
@@ -135,6 +162,34 @@ Describe 'Invoke-GopherRequest' {
 		$github.Server | Should -Be 'github.com'
 		$github.Port | Should -Be 443
 		$github.UrlLink | Should -BeTrue
+	}
+
+	It 'Can fetch Gopher+ requests and parse INFO fields' {
+		$script:Plus = Invoke-GopherRequest -Uri 'gopher://colincogle.name/I/PSGopherTest/gopher.avif' -Info
+		$Plus.INFO  | Should -Be "Igopher.avif`t/PSGopherTest/gopher.avif`tcolincogle.name`t70`t+"
+	}
+
+	It 'Can fetch Gopher+ requests and parse ADMIN fields' {
+		$Plus.ADMIN[0] | Should -Be 'Admin: Colin Cogle <colin@colincogle.name>'
+		$Plus.ADMIN[1] | Should -BeLike 'Mod-Date: *'
+	}
+
+	It 'Can fetch and receive resources with Gopher+ views' {
+		$Views = Invoke-GopherRequest -Uri 'gopher://colincogle.name/I/PSGopherTest/gopher.avif' -Views 'image/avif'
+		$Views.Protocol | Should -Be 'Gopher+'
+		$Views.ContentType | Should -Be 'I'
+		$Views.RawContentLength | Should -Be 2307
+
+		# Hash the stream for correctness.
+		# This is the same gopher.avif file that is included in the tests/ folder.
+		$GoodHash = (Get-FileHash -Path (Join-Path -Path 'tests' -ChildPath 'gopher.avif')).Hash
+		$SHA256 = [Security.Cryptography.SHA256]::Create()
+		[BitConverter]::ToString($SHA256.ComputeHash($Views.Content)) -Replace '-' | Should -Be $GoodHash
+	}
+
+	It 'Can fetch Gopher+ abstracts' {
+		$Test = Invoke-GopherRequest -Uri 'gopher://colincogle.name/I/PSGopherTest/gopher.avif' -Abstract
+		$Test.ABSTRACT | Should -Be 'This is a picture of a Minnesota Golden Gopher.'
 	}
 }
 

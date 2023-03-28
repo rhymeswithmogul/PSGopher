@@ -8,6 +8,7 @@
 -  Fixed a bug where saving binary files with `-OutFile` might throw an error under some circumstances.
 -  Fixed a bug where saving text files with `-OutFile` might append an additional CR+LF.
 -  Fixed a bug where the `Content` property would not contain correct data when using Gopher+ views.
+-  Fixed a bug where generic images (those of type `I`) would not be detected as images, due to PowerShell's `Switch` blocks being case-insensitive, even when using regular expressions.
 -  Remove `Desktop` from `PSCompatibleEditions`.  This module has required PowerShell 7 since the beginning, and was never compatible with downlevel versions.
 
 ## Version 1.3.3

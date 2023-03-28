@@ -335,7 +335,7 @@ Function Invoke-GopherRequest {
 			# the -OutFile or -Info parameters, because no link objects are returned.
 			If (-Not $OutFile -and -Not $Info  -and $_ -Match "`t") {
 				$line = $_
-				Switch -RegEx ($_[0]) {
+				Switch -CaseSensitive -RegEx ($_[0]) {
 					'i' {
 						Break
 					}
@@ -481,7 +481,7 @@ Function Convert-GopherLink {
 		# Pick the appropriate URL schema for the link type.
 		# For the first two (CCSO and Telnet), there should be nothing after the
 		# optional port, but let's include it anyway.
-		Switch -RegEx ($fields[0][0]) {
+		Switch -CaseSensitive -RegEx ($fields[0][0]) {
 			'2'     {$Port ??= 105; $Uri = [Uri]::new("cso://${Server}:$Port/$($fields[1])")}
 			'[8T]'  {$Port ??= 23;  $Uri = [Uri]::new("telnet://${Server}:$Port/$($fields[1])")}
 			default {$Port ??= 70;  $Uri = [Uri]::new("gopher://${Server}:$Port/$($fields[1])")}

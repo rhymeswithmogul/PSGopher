@@ -25,7 +25,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.3'
+ModuleVersion = '1.4'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -37,7 +37,7 @@ GUID = '81001589-9a2a-4554-a07b-fe0ffd4b9b50'
 Author = 'Colin Cogle <colin@colincogle.name>'
 
 # Copyright statement for this module
-Copyright = '(c) 2021-2022 Colin Cogle. Licensed under the AGPL, version 3 or later.'
+Copyright = '(c) 2021-2023 Colin Cogle. Licensed under the AGPL, version 3 or later.'
 
 # Description of the functionality provided by this module
 Description = 'Connect to Gopher and Gopher+ servers.'
@@ -70,6 +70,7 @@ FileList = @(
 	'en-US/about_GopherUriScheme.help.txt',
 	'en-US/about_PSGopher.help.txt',
 	'en-US/PSGopher-help.xml',
+	'en-US/translations.json',
 	'src/PSGopher.psm1',
 	'AUTHORS',
 	'CHANGELOG.md',

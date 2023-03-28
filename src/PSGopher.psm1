@@ -262,11 +262,12 @@ Function Invoke-GopherRequest {
 		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
 			# <TAB> "Reading ≤___ bytes from the server."
 			Write-Debug "`t$(Get-MessageTranslation 18 $BufferSize)"
+			Write-Debug "`tGot $bytesRead bytes"
 			$response.Write($buffer, 0, $bytesRead)
 		}
 		$response.Flush()
 		# "Received ___ bytes from server."
-		Write-Verbose (Get-MessageTranslation 19 $Encoder.GetByteCount($response))
+		Write-Verbose (Get-MessageTranslation 19 $response.Length)
 	}
 	#endregion (Receive data)
 
@@ -280,6 +281,7 @@ Function Invoke-GopherRequest {
 	$Links = @()
 
 	# Check for errors.  All errors begin with '3'.
+	Write-Debug "Content type = $ContentTypeExpected (Binary=$($BINARY_TRANSFER ? 'Yes' : 'No'))"
 	If ( `
 		($BINARY_TRANSFER -and $response.ToArray()[0] -eq 51) -or `
 		(-Not $BINARY_TRANSFER -and $response[0] -eq '3' -and $response -CLike '*error.host*') `
@@ -295,7 +297,8 @@ Function Invoke-GopherRequest {
 		$Content = $response.ToArray()
 	}
 	# If this is anything non-binary and not a menu, simply return it.
-	ElseIf ($ContentTypeExpected -ne 1) {
+	ElseIf ($ContentTypeExpected -NotIn ('1', 1)) {
+		Write-Debug "CTE is '$ContentTypeExpected' ($($ContentTypeExpected -eq 1 ? '=1' : '!=1')); content is now response"
 		$Content = $response
 	}
 	Else {
@@ -347,7 +350,7 @@ Function Invoke-GopherRequest {
 			}
 			Else {
 				# "Writing # bytes to <filename>"
-				Write-Verbose (Get-MessageTranslation 23 @($Encoder.GetByteCount($response), $OutFile))
+				Write-Verbose (Get-MessageTranslation 23 @($response.Length, $OutFile))
 				Set-Content -Path $OutFile -Value $Content -AsByteStream 
 			}
 		}
@@ -355,7 +358,7 @@ Function Invoke-GopherRequest {
 	}
 	# TODO: figure out how to parse Gophermaps in Gopher+ mode.
 	# For now, let's skip all this and return it as plain text.
-	ElseIf ($Info -and $ContentTypeExpected -ne 1) {
+	ElseIf ($Info -and $ContentTypeExpected -NotIn @('1',1)) {
 		$Result = [PSCustomObject]@{}
 
 		# For each line of Gopher+ output, we're going to see if it begins with

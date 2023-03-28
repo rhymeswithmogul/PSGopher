@@ -1,7 +1,11 @@
 # PSGopher ChangeLog
 
-## Version 1.4.0
+## Version 2.0.0
 -  Added support for language translations!  Create a file called `translations.json` in this module's language folder, and this script will find it (e.g., `en-US/translations.json`).  Please contribute them on GitHub!
+-  Fixed content type reporting.  Now, types are always an ASCII character, and never a number.  This is in line with the Gopher specification.  For example, the Gophermap type will be reported correctly as `'1'` (ASCII 49) instead of `1` (1).  Please update any code that relies on this module.
+-  Added Pester tests.
+-  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
+-  Fixed a bug where saving files with `-OutFile` might throw an error under some circumstances.
 
 ## Version 1.3.3
 -  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.

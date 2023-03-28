@@ -1,0 +1,12 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+This file is used by Pester to test my PSGopher module.
+For more information, see https://github.com/rhymeswithmogul/PSGopher
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQQ7NZ6ap/Bjr/sGU4FSrfh98PoTfwUCZCItxQAKCRBSrfh98PoT
+f7VXAP9U/OcpnAcYFcTdGSYJzkq/+JmQdgXzv+lYp3rIMhzUAgEApDIBdIWgU4Go
+QuQkJpe65ZUhAECrXwmn8WcHN2lPGgQ=
+=LdHi
+-----END PGP SIGNATURE-----

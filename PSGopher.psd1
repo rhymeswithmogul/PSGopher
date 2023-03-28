@@ -25,7 +25,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/PSGopher.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4'
+ModuleVersion = '2.0.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')

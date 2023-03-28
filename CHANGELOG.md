@@ -5,7 +5,8 @@
 -  Fixed content type reporting.  Now, types are always an ASCII character, and never a number.  This is in line with the Gopher specification.  For example, the Gophermap type will be reported correctly as `'1'` (ASCII 49) instead of `1` (1).  Please update any code that relies on this module.
 -  Added Pester tests.
 -  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
--  Fixed a bug where saving files with `-OutFile` might throw an error under some circumstances.
+-  Fixed a bug where saving binary files with `-OutFile` might throw an error under some circumstances.
+-  Fixed a bug where saving text files with `-OutFile` might append an additional CR+LF.
 -  Fixed a bug where the `Content` property would not contain correct data when using Gopher+ views.
 -  Remove `Desktop` from `PSCompatibleEditions`.  This module has required PowerShell 7 since the beginning, and was never compatible with downlevel versions.
 

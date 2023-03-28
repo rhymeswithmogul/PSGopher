@@ -363,12 +363,12 @@ Function Invoke-GopherRequest {
 			{
 				# "Writing # bytes to <filename>"
 				Write-Verbose (Get-MessageTranslation 23 @($Encoder.GetByteCount($response), $OutFile))
-				Set-Content -Path $OutFile -Value $Content -Encoding $Encoding 
+				Set-Content -Path $OutFile -Value $Content -Encoding $Encoding -NoNewline
 			}
 			Else {
 				# "Writing # bytes to <filename>"
 				Write-Verbose (Get-MessageTranslation 23 @($response.Length, $OutFile))
-				Set-Content -Path $OutFile -Value $Content -AsByteStream 
+				Set-Content -Path $OutFile -Value $Content -AsByteStream
 			}
 		}
 		Return

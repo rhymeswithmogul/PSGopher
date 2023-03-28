@@ -1,4 +1,9 @@
-[![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSGopher?include_prereleases)](https://powershellgallery.com/packages/PSGopher/) [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSGopher)](https://powershellgallery.com/packages/v/PSGopher)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSGopher?include_prereleases)
+ ![PowerShell Gallery](https://img.shields.io/powershellgallery/p/PSGopher)
+ ![Download from PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSGopher)
+](https://www.powershellgallery.com/packages/PSGopher/)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rhymeswithmogul/PSGopher/run-pester-tests.yaml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 # PSGopher
 A Gopher/Gopher+/SecureGopher client written for Powershell 7 and newer.

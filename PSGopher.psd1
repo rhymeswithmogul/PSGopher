@@ -89,7 +89,7 @@ PrivateData = @{
 	PSData = @{
 
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'SecureGopher+', 'GopherS', 'SGopher', 'Gopher-TLS', 'download', 'igr', 'Overbite', 'port70', 'RFC1436', 'RFC4266', 'small_web', 'cURL', 'SSL', 'TLS')
+		Tags = @('Gopher', 'GopherPlus', 'Gopher+', 'SecureGopher', 'SecureGopher+', 'GopherS', 'SGopher', 'Gopher-TLS', 'download', 'igr', 'Overbite', 'port70', 'RFC1436', 'RFC4266', 'small_web', 'cURL', 'SSL', 'TLS', 'Windows', 'macOS', 'Linux')
 
 		# A URL to the license for this module.
 		LicenseUri = 'https://www.gnu.org/licenses/agpl-3.0.en.html'

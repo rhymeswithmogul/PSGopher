@@ -28,7 +28,7 @@ RootModule = 'src/PSGopher.psm1'
 ModuleVersion = '2.0.0'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Core', 'Desktop')
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = '81001589-9a2a-4554-a07b-fe0ffd4b9b50'

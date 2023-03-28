@@ -164,10 +164,10 @@ Function Invoke-GopherRequest {
 	}
 
 	# If we still can't figure it out after all this, assume it's a Gopher menu.
-	$ContentTypeExpected ??= 1
+	$ContentTypeExpected ??= '1'
 
 	# Determine if we're reading a binary file or text.
-	$BINARY_TRANSFER = (-Not $Info) -and ($ContentTypeExpected -In @(4,5 ,9,'g','I',':',';','<','d','s') )
+	$BINARY_TRANSFER = (-Not $Info) -and ($ContentTypeExpected -In @('4','5','9','g','I',':',';','<','d','s') )
 	#endregion (Content type negotiation)
 
 	#region Parse input parameters
@@ -199,7 +199,7 @@ Function Invoke-GopherRequest {
 	#region Send request
 	$ToSend = $Uri.PathAndQuery
 	If ($Info) {
-		If ($ContentTypeExpected -eq 1) {
+		If ($ContentTypeExpected -eq '1') {
 			$ToSend += "`t$"
 		}
 		Else {
@@ -281,7 +281,6 @@ Function Invoke-GopherRequest {
 	$Links = @()
 
 	# Check for errors.  All errors begin with '3'.
-	Write-Debug "Content type = $ContentTypeExpected (Binary=$($BINARY_TRANSFER ? 'Yes' : 'No'))"
 	If ( `
 		($BINARY_TRANSFER -and $response.ToArray()[0] -eq 51) -or `
 		(-Not $BINARY_TRANSFER -and $response[0] -eq '3' -and $response -CLike '*error.host*') `
@@ -297,8 +296,7 @@ Function Invoke-GopherRequest {
 		$Content = $response.ToArray()
 	}
 	# If this is anything non-binary and not a menu, simply return it.
-	ElseIf ($ContentTypeExpected -NotIn ('1', 1)) {
-		Write-Debug "CTE is '$ContentTypeExpected' ($($ContentTypeExpected -eq 1 ? '=1' : '!=1')); content is now response"
+	ElseIf ($ContentTypeExpected -ne '1') {
 		$Content = $response
 	}
 	Else {
@@ -358,7 +356,7 @@ Function Invoke-GopherRequest {
 	}
 	# TODO: figure out how to parse Gophermaps in Gopher+ mode.
 	# For now, let's skip all this and return it as plain text.
-	ElseIf ($Info -and $ContentTypeExpected -NotIn @('1',1)) {
+	ElseIf ($Info -and $ContentTypeExpected -ne '1') {
 		$Result = [PSCustomObject]@{}
 
 		# For each line of Gopher+ output, we're going to see if it begins with
@@ -421,7 +419,7 @@ Function Invoke-GopherRequest {
 
 		Return [PSCustomObject]@{
 			'Protocol' = $Protocol
-			'ContentType' = $ContentTypeExpected ?? 1
+			'ContentType' = $ContentTypeExpected ?? '1'
 			'Content' = $Content
 			'Encoding' = ($BINARY_TRANSFER ? $Content.GetType() : $Encoder.GetType())
 			'Images'  = $Links | Where-Object Type -In @('g','I')
@@ -498,101 +496,101 @@ Function Get-GopherType {
 
 	# This list will be searched case-insensitively.
 	$Extensions = @{
-		'ace' = 9				# ACE archive
+		'ace' = '9'				# ACE archive
 		'ai' = 'I'				# Adobe Illustrator image
 		'aif[cf]?' = '<'		# AIFF sound
-		'applescript|scpt' = 0	# AppleScript code
-		'arj' = 9				# ARJ archive
+		'applescript|scpt' = '0'# AppleScript code
+		'arj' = '9'				# ARJ archive
 		'art' = 'I'				# AOL ART image
-		'asc' = 0				# GPG data (text)
+		'asc' = '0'				# GPG data (text)
 		'asf' = ';'				# ASF sound
-		'asm|s' = 0				# Assembly code
-		'ass|ssa|srt' = 0		# Subtitles
+		'asm|s' = '0'			# Assembly code
+		'ass|ssa|srt' = '0'		# Subtitles
 		'au' = '<'				# Sound
 		'av1' = ';'				# AV1 movie
 		'avi' = ';'				# AVI movie
 		'avif' = 'I'			# AVIF image
-		'bat|cmd' = 0			# Batch file
-		'bin' = 9				# Generic binary
+		'bat|cmd' = '0'			# Batch file
+		'bin' = '9'				# Generic binary
 		'bmp|dib|pcx' = ':'		# Bitmap image
-		'br' = 9				# Brotli-compressed data
-		'bz2' = 9				# BZIP2 archive
-		'c|h' = 0				# C source code
-		'cab' = 9				# Windows cabinet	
-		'cer' = 0				# Certificate (probably text)
+		'br' = '9'				# Brotli-compressed data
+		'bz2' = '9'				# BZIP2 archive
+		'c|h' = '0'				# C source code
+		'cab' = '9'				# Windows cabinet	
+		'cer' = '0'				# Certificate (probably text)
 		'cgm' = 'I'				# CGM image
-		'coffee' = 0			# CoffeeScript
-		'conf|cfg?|ini' = 0		# Config file
-		'cpio' = 9				# CPIO archive
-		'[ch](?:pp|xx)' = 0		# C++ code	
-		'crl' = 9				# Certificate revocation list
-		'crt' = 9				# Certificate (probably binary)
-		'[ch]s' = 0				# C# code
-		'css' = 0				# CSS stylesheet
-		'csv' = 0				# CSV data
-		'cur|ani' = 5			# Windows cursor
-		'deb|rpm|apk' = 9		# Linux packages
-		'der' = 0				# Certificate (as text)
-		'diff' = 0				# diff
-		'dll' = 5				# DOS/Windows library
-		'dmg|sparseimage' = 9	# macOS disk image
+		'coffee' = '0'			# CoffeeScript
+		'conf|cfg?|ini' = '0'	# Config file
+		'cpio' = '9'			# CPIO archive
+		'[ch](?:pp|xx)' = '0'	# C++ code	
+		'crl' = '9'				# Certificate revocation list
+		'crt' = '9'				# Certificate (probably binary)
+		'[ch]s' = '0'			# C# code
+		'css' = '0'				# CSS stylesheet
+		'csv' = '0'				# CSV data
+		'cur|ani' = '5'			# Windows cursor
+		'deb|rpm|apk' = '9'		# Linux packages
+		'der' = '0'				# Certificate (as text)
+		'diff' = '0'			# diff
+		'dll' = '5'				# DOS/Windows library
+		'dmg|sparseimage' = '9'	# macOS disk image
 		'dng' = 'I'				# Digital negative
-		'dns' = 0				# DNS zone
+		'dns' = '0'				# DNS zone
 		'do[ct][mx]?' = 'd'		# Microsoft Word document
-		'dsk' = 9				# Disk image
+		'dsk' = '9'				# Disk image
 		'dvi' = 'd'				# DVI document
 		'dvr-ms' = ';'			# Windows Media Center movie
 		'dwg' = 'I'				# AutoCAD image
-		'ebuild' = 0			# Gentoo ebuild
+		'ebuild' = '0'			# Gentoo ebuild
 		'emf|wmf' = 'I'			# Windows metafile image
-		'eml|msg' = 0			# Email message
+		'eml|msg' = '0'			# Email message
 		'eps' = 'I'				# Vector image
-		'epub|mobi' = 9			# Book
-		'exe|com|pif' = 5		# DOS/Windows app
+		'epub|mobi' = '9'		# Book
+		'exe|com|pif' = '5'		# DOS/Windows app
 		'f?odg|otg' = 'I'		# OpenDocument drawing
 		'f?odp|otp' = 'd'		# OpenDocument presentation
 		'f?ods|ots' = 'd'		# OpenDocument spreadsheet
 		'f?odt|ott' = 'd'		# OpenDocument document
-		'fon' = 5				# DOS/Windows font
+		'fon|fot' = '5'			# DOS/Windows font
 		'flac' = '<'			# FLAC audio
 		'flv' = ';'				# Flash video
 		'gif' = 'g'				# GIF image
 		'gifv' = ';'			# GIFV video
-		'gmi' = 0				# Gemtext
+		'gmi' = '0'				# Gemtext
 		'gnumeric' = 'd'		# Gnumeric spreadsheet
-		'go' = 0				# Go source code
-		'gpg' = 9				# GPG data (binary)
-		'gz' = 9				# Compressed data
+		'go' = '0'				# Go source code
+		'gpg' = '9'				# GPG data (binary)
+		'gz' = '9'				# Compressed data
 		'hei[cf]' = 'I'			# HEIC image
-		'hqx' = 4				# BinHex archive
+		'hqx' = '4'				# BinHex archive
 		'html?' = 'h'			# HTML document
 		'icns' = 'I'			# macOS icon
 		'ico' = 'I'				# Windows icon
-		'img' = 9				# Disk image
-		'inf' = 0				# Windows INF file
-		'ini' = 0				# Configuration file
-		'ipsw' = 9				# iOS/iPod software update
-		'iso' = 9				# CD image
-		'jar' = 9				# Java app
-		'java' = 0				# Java source code
+		'img' = '9'				# Disk image
+		'inf' = '0'				# Windows INF file
+		'ini' = '0'				# Configuration file
+		'ipsw' = '9'			# iOS/iPod software update
+		'iso' = '9'				# CD image
+		'jar' = '9'				# Java app
+		'java' = '0'			# Java source code
 		'jp2' = 'I'				# JPEG 2000 image
 		'jpe?g' = 'I'			# JPEG image
-		'js' = 0				# JavaScript code
-		'json' = 0				# JSON data
-		'jsonld' = 0			# JSON-LD data
+		'js' = '0'				# JavaScript code
+		'json' = '0'			# JSON data
+		'jsonld' = '0'			# JSON-LD data
 		'jxl' = 'I'				# JPEG XL image
-		'lnk' = 5				# Windows shortcut
-		'log' = 0				# Log
-		'lua' = 0				# Lua source code
-		'lz' = 9				# Compressed data
-		'lzh' = 9				# Compressed data
-		'lzma' = 9				# Compressed data
-		'lzo' = 9				# Compressed data
+		'lnk' = '5'				# Windows shortcut
+		'log' = '0'				# Log
+		'lua' = '0'				# Lua source code
+		'lz' = '9'				# Compressed data
+		'lzh' = '9'				# Compressed data
+		'lzma' = '9'			# Compressed data
+		'lzo' = '9'				# Compressed data
 		'm3u8?' = '<'			# Playlist
-		'm4' = 0				# M4 source code
+		'm4' = '0'				# M4 source code
 		'm4[abpr]' = '<'		# MPEG-4 audio formats (mostly iTunes)
 		'm4v|mp4' = ';'			# MPEG-4 container (usually video)
-		'md|markdown' = 0		# Markdown text
+		'md|markdown' = '0'		# Markdown text
 		'midi?' = '<'			# MIDI music
 		'mkv' = ';'				# Matroska video
 		'mov' = ';'				# QuickTime movie
@@ -601,65 +599,66 @@ Function Get-GopherType {
 		'mpp' = 'd'				# Microsoft Project document
 		'msp' = 'I'				# Microsoft Paintbrush image
 		'numbers' = 'd'			# Numbers spreadsheet
-		'o' = 9					# Object file
-		'ocx' = 5				# ActiveX control
+		'o' = '9'				# Object file
+		'ocx' = '5'				# ActiveX control
 		'odb' = 'd'				# OpenDoucment database
 		'odf' = 'd'				# OpenDocument formula
 		'og[gm]' = '<'			# Ogg audio
 		'ogv' = ';'				# Ogg video
-		'ovl' = 5				# DOS overlay
+		'ovl' = '5'				# DOS overlay
 		'o?xps' = 'd'			# (Open)XPS document
 		'pages' = 'd'			# Pages document
-		'par2?' = 9				# PAR archive
-		'pas' = 0				# Pascal code
+		'par2?' = '9'			# PAR archive
+		'pas' = '0'				# Pascal code
 		'pbm' = ':'				# PBM image
 		'pi?ct' = 'I'			# Apple PICT image
 		'pdf' = 'd'				# PDF document
 		'pdn' = 'I'				# Paint.NET image
-		'pem' = 0				# PEM-encoded data
-		'pfx|p12|p7[bc]' = 9	# Certificates
-		'php[345]?' = 0			# PHP code
-		'pl' = 0				# Perl code
+		'pem' = '0'				# PEM-encoded data
+		'pfx|p12|p7[bc]' = '9'	# Certificates
+		'php[345]?' = '0'		# PHP code
+		'pl' = '0'				# Perl code
 		'png' = 'I'				# PNG image
 		'pptx?|pps|pot' = 'd'	# PowerPoint presentation
 		'ps' = 'd'				# PostScript document
 		'psd' = 'I'				# Photoshop image
 		'psp' = 'I'				# Paint Shop Pro image
-		'ps[cdm]?1|ps1xml' = 0	# PowerShell code
+		'ps[cdm]?1' = '0'		# PowerShell code
+		'ps1xml' = '0'			# PowerShell types or formats
 		'pub' = 'd'				# Publisher document
-		'py' = 0				# Python code
-		'py[co]' = 9			# Python bytecode
-		'r' = 0					# R code
-		'rar' = 9				# WinRAR archive
-		'rb' = 0				# Ruby source code
-		'rdp' = 0				# Microsoft Remote Desktop connection
-		'rss|atom' = 0			# News feed
+		'py' = '0'				# Python code
+		'py[co]' = '9'			# Python bytecode
+		'r' = '0'				# R code
+		'rar' = '9'				# WinRAR archive
+		'rb' = '0'				# Ruby source code
+		'rdp' = '0'				# Microsoft Remote Desktop connection
+		'rss|atom' = '0'		# News feed
 		'rtfd?' = 'd'			# Rich Text Format document
-		'scr' = 5				# Windows screen saver
-		'scss' = 0				# Sass code
-		'sh|bash|command' = 0	# Shell script
+		'scr' = '5'				# Windows screen saver
+		'scss' = '0'			# Sass code
+		'sh|bash|command' = '0'	# Shell script
 		'sht(?:ml)?' = 'h'		# HTML with includes
-		'sitx?' = 9				# Stuffit archive
+		'sitx?' = '9'			# Stuffit archive
 		'snd' = '<'				# Sound
-		'sql' = 0				# SQL code
+		'sql' = '0'				# SQL code
 		'svgz?' = 'I'			# SVG image
-		'sys|drv' = 5			# DOS/Windows driver
+		'sys|drv' = '5'			# DOS/Windows driver
 		'tab|tsv' = 'd'			# Tab-encoded values
-		'tar' = 9				# TAR archive
+		'tar' = '9'				# TAR archive
 		'targa|tga' = 'I'		# Targa image
-		'tcl' = 0				# TCL code
-		'tex' = 0				# Tex code
+		'tcl' = '0'				# TCL code
+		'tex' = '0'				# Tex code
 		'tiff?' = 'I'			# TIFF image
-		'tt[cf]|otf|woff2?' = 9	# Font
-		'txt' = 0				# Text
-		'uue' = 6				# UUEncoded data
-		'vbs' = 0				# VBScript
-		'vhdx?' = 9				# Windows disk image
+		'tt[cf]|otf|woff2?' = '9'	# Font
+		'txt' = '0'				# Text
+		'uue' = '6'				# UUEncoded data
+		'vbs' = '0'				# VBScript
+		'vhdx?' = '9'			# Windows disk image
 		'vsdx?' = 'I'			# Visio drawing
 		'wav' = '<'				# Wave audio
 		'webm' = ';'			# WebM video
 		'webp|wp2' = 'I'		# WebP (2) image
-		'wim|esd' = 9			# Windows Image (archive)
+		'wim|esd' = '9'			# Windows Image (archive)
 		'wma|asf' = ';'			# Windows Media audio
 		'wmf|emf' = 'I'			# Windows Metafile image
 		'wmv' = ';'				# Windows Media video
@@ -669,17 +668,17 @@ Function Get-GopherType {
 		'xht(?:ml)?' = 'h'		# XHTML code
 		'xl(s[bmx]?|w)' = 'd'	# Excel document
 		'xltm?'	= 'd'			# Excel template
-		'xml|rdf' = 0			# XML code
+		'xml|rdf' = '0'			# XML code
 		'xpm' = 'I'				# XPM image
-		'xsd' = 0				# XSD code
-		'xslt?' = 0				# XML stylesheet
-		'xz' = 9				# Compressed data
-		'ya?ml' = 0				# YAML code
-		'Z' = 9					# Compressed data
-		'zip' = 9				# Zip archive
-		'zoo' = 9				# ZOO archive
+		'xsd' = '0'				# XSD code
+		'xslt?' = '0'			# XML stylesheet
+		'xz' = '9'				# Compressed data
+		'ya?ml' = '0'			# YAML code
+		'Z' = '9'				# Compressed data
+		'zip' = '9'				# Zip archive
+		'zoo' = '9'				# ZOO archive
 		'123' = 'd'				# Lotus 1-2-3 document
-		'7z' = 9				# 7-zip archive
+		'7z' = '9'				# 7-zip archive
 	}
 
 	$Result = $null

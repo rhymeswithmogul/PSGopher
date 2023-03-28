@@ -293,7 +293,26 @@ Function Invoke-GopherRequest {
 	}
 	# If this is not a Gopher menu, then simply return the raw output.
 	ElseIf ($BINARY_TRANSFER) {
-		$Content = $response.ToArray()
+		If (-Not $Views) {
+			$Content = $response.ToArray()
+		}
+		Else {
+			# A Views query will include a plus sign, the file size, and then a
+			# \r\n.  Remove that header from the Content.
+			$arr = $response.ToArray()
+			$dataStarts = 0
+			If ($arr[0] -eq 43) <# a plus sign #>
+			{
+				For ($i = 0; $i -lt $arr.Length; $i++) {
+					If ($arr[$i] -eq 13 -and $arr[$i + 1] -eq 10) {
+						$dataStarts = $i + 2
+						Break
+					}
+				}
+			}
+
+			$Content = $arr[$dataStarts..($arr.Length)]
+		}
 	}
 	# If this is anything non-binary and not a menu, simply return it.
 	ElseIf ($ContentTypeExpected -ne '1') {

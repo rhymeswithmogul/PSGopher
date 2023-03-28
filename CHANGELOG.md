@@ -6,6 +6,8 @@
 -  Added Pester tests.
 -  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
 -  Fixed a bug where saving files with `-OutFile` might throw an error under some circumstances.
+-  Fixed a bug where the `Content` property would not contain correct data when using Gopher+ views.
+-  Remove `Desktop` from `PSCompatibleEditions`.  This module has required PowerShell 7 since the beginning, and was never compatible with downlevel versions.
 
 ## Version 1.3.3
 -  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.

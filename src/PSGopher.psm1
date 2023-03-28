@@ -1,4 +1,4 @@
-<#
+﻿<#
 PSGopher -- a PowerShell client for Gopher and Gopher+ servers.
 Copyright (C) 2021-2022 Colin Cogle <colin@colincogle.name>
 
@@ -57,7 +57,7 @@ Function Invoke-GopherRequest {
 	#region Establish TCP connection.
 	# If we have a secure URL scheme, set UseSSL to true.
 	$UseSSL = $UseSSL -or ($Uri.Scheme -In @('gophers','sgopher','gopher+tls'))
-	
+
 	# Sometimes, the .NET runtime doesn't recognize which port we're supposed
 	# to be using -- especially if we use a Gopher-TLS scheme for a secure
 	# connection.  If so, we need to make a new URL with the port defined.
@@ -182,7 +182,7 @@ Function Invoke-GopherRequest {
 		$Encoder = [Web.HttpUtility]::ParseQueryString('')
 		$Encoder.Add($null, $InputObject)
 		$EncodedInput = $Encoder.ToString() -Replace '\+','%20'	# Gopher requires URL (percent) encoding for spaces.
-		
+
 		# "Encoded additional query string=___"
 		Write-Debug (Get-MessageTranslation 12 $EncodedInput)
 
@@ -192,7 +192,7 @@ Function Invoke-GopherRequest {
 			# "Found existing query string=___"
 			Write-Debug (Get-MessageTranslation 13 $Uri.Query)
 		}
-		$Uri = [Uri]::new($Uri.ToString() + ($Uri.Query ? '&' : '?') + $EncodedInput)			
+		$Uri = [Uri]::new($Uri.ToString() + ($Uri.Query ? '&' : '?') + $EncodedInput)
 	}
 	#endregion
 
@@ -246,7 +246,7 @@ Function Invoke-GopherRequest {
 			# "Beginning to read (textual type ___)"
 			Write-Debug (Get-MessageTranslation 17 $ContentTypeExpected)
 		}
-		
+
 		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
 			# <TAB> "Reading ≤___ bytes from the server."
 			Write-Debug "`t$(Get-MessageTranslation 18 $BufferSize)"
@@ -540,13 +540,13 @@ Function Get-GopherType {
 		'br' = '9'				# Brotli-compressed data
 		'bz2' = '9'				# BZIP2 archive
 		'c|h' = '0'				# C source code
-		'cab' = '9'				# Windows cabinet	
+		'cab' = '9'				# Windows cabinet
 		'cer' = '0'				# Certificate (probably text)
 		'cgm' = 'I'				# CGM image
 		'coffee' = '0'			# CoffeeScript
 		'conf|cfg?|ini' = '0'	# Config file
 		'cpio' = '9'			# CPIO archive
-		'[ch](?:pp|xx)' = '0'	# C++ code	
+		'[ch](?:pp|xx)' = '0'	# C++ code
 		'crl' = '9'				# Certificate revocation list
 		'crt' = '9'				# Certificate (probably binary)
 		'[ch]s' = '0'			# C# code
@@ -731,13 +731,13 @@ Function Get-MessageTranslation {
 	)
 
 	If ($null -eq $script:Translations) {
-		Import-Translations
+		Import-Translation
 	}
 
 	Return ($script:Translations[$MessageID - 1] -f $Substitutions)
 }
 
-Function Import-Translations {
+Function Import-Translation {
 	# Error messages in this function indicate that a localization does
 	# not exist, could not be loaded, or has not yet been loaded and any
 	# lookup would cause an infinite loop.  Do not translate these
@@ -759,7 +759,7 @@ Function Import-Translations {
 	Catch {
 		If (-Not $ForceEnUs) {
 			Write-Debug "Falling back to English (United States)"
-			Import-Translations -ForceEnUs:$true
+			Import-Translation -ForceEnUs:$true
 		}
 		Else {
 			Throw 'Failed to load en-US translation!'

@@ -10,6 +10,7 @@
 -  Fixed a bug where the `Content` property would not contain correct data when using Gopher+ views.
 -  Fixed a bug where generic images (those of type `I`) would not be detected as images, due to PowerShell's `Switch` blocks being case-insensitive, even when using regular expressions.
 -  Remove `Desktop` from `PSCompatibleEditions`.  This module has required PowerShell 7 since the beginning, and was never compatible with downlevel versions.
+-  Cleaned up minor things reported by PSScriptAnalyzer.
 
 ## Version 1.3.3
 -  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.

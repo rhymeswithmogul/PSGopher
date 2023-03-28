@@ -1,4 +1,4 @@
-﻿<#
+<#
 PSGopher -- a PowerShell client for Gopher and Gopher+ servers.
 Copyright (C) 2021-2023 Colin Cogle <colin@colincogle.name>
 

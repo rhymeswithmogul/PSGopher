@@ -1,6 +1,6 @@
 <#
 PSGopher -- a PowerShell client for Gopher and Gopher+ servers.
-Copyright (C) 2021-2022 Colin Cogle <colin@colincogle.name>
+Copyright (C) 2021-2023 Colin Cogle <colin@colincogle.name>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free
@@ -102,11 +102,16 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = "- Added support for language translations!  Create a file called 'translations.json' in this module's language folder, and this script will find it (e.g., 'en-US/translations.json').  Please contribute them on GitHub!
--  Fixed content type reporting.  Now, types are always an ASCII character, and never a number.  This is in line with the Gopher specification.  For example, the Gophermap type will be reported correctly as '1' (ASCII 49) instead of 1 (0x01).  Please update any code that relies on this module.
--  Added Pester tests.
--  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
--  Fixed a bug where saving files with -OutFile might throw an error under some circumstances."
+		ReleaseNotes = "-  Added support for language translations!  Create a file called 'translations.json' in this module's language folder, and this script will find it (e.g., 'en-US/translations.json').  Please contribute them on GitHub!
+		-  Fixed content type reporting.  Now, types are always an ASCII character, and never a number.  This is in line with the Gopher specification.  For example, the Gophermap type will be reported correctly as '1' (ASCII 49) instead of 1 (0x1).  Please update any code that relies on this module.
+		-  Added Pester tests.
+		-  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
+		-  Fixed a bug where saving binary files with '-OutFile' might throw an error under some circumstances.
+		-  Fixed a bug where saving text files with '-OutFile' might append an additional CR+LF.
+		-  Fixed a bug where the 'Content' property would not contain correct data when using Gopher+ views.
+		-  Fixed a bug where generic images (those of type 'I') would not be detected as images, due to PowerShell's 'Switch' blocks being case-insensitive, even when using regular expressions.
+		-  Remove 'Desktop' from 'PSCompatibleEditions'.  This module has required PowerShell 7 since the beginning, and was never compatible with downlevel versions.
+		-  Cleaned up minor things reported by PSScriptAnalyzer."
 
 		# Prerelease string of this module
 		# Prerelease = 'git'

@@ -3,4 +3,5 @@ This is used by Pester to test the functionality of the module.
 
 0View the PSGopher test text file.	PSGopher.txt
 hView the project page on GitHub.	/URL:https://github.com/rhymeswithmogul/PSGopher
-gThis is an animated GIF of a Gopher.	gopher.gif
+IThis is an image of a Gopher (AVIF).	gopher.avif
+IThis is an image of a Gopher (JPEG).	gopher.jpg

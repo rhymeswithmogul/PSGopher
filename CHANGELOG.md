@@ -1,5 +1,8 @@
 # PSGopher ChangeLog
 
+## Version 1.4.0
+-  Added support for language translations!  Create a file called `translations.json` in this module's language folder, and this script will find it (e.g., `en-US/translations.json`).  Please contribute them on GitHub!
+
 ## Version 1.3.3
 -  Added the Gopher RFCs and non-RFCs as conceptual help items:  `about_Gopher`, `about_Gopher+`, and `about_GopherUriScheme`.
 

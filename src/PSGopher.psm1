@@ -64,39 +64,44 @@ Function Invoke-GopherRequest {
 	If ($Uri.Port -eq -1) {
 		$Path, $Query = $Uri.PathAndQuery -Split '\?',2
 		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):70$Path$($Query ? "?$Query" : '')")
-		Write-Debug "New URL = $Uri"
+		# New URL = ___
+		Write-Debug (Get-MessageTranslation 1 $Uri)
 	}
 
-	Write-Verbose "Connecting to $($Uri.Host)$($UseSSL ? ' securely' : '')"
+	If ($UseSSL -ne $true) {
+		# "Connecting to ___."
+		Write-Verbose (Get-MessageTranslation 2 $Uri.Host)
+	}
+	Else {
+		# "Connecting to ___ securely."
+		Write-Verbose (Get-MessageTranslation 3 $Uri.Host)
+	}
+
 	Try {
 		$TcpSocket = [Net.Sockets.TcpClient]::new($Uri.Host, $Uri.Port ?? 70)
 		$TcpStream = $TcpSocket.GetStream()
 		$TcpStream.ReadTimeout = 2000 #milliseconds
 		If ($UseSSL -or $TrySSL) {
-			Write-Debug 'Upgrading connection to TLS.'
+			# "Upgrading connection to TLS."
+			Write-Debug (Get-MessageTranslation 4)
 			$secureStream = [Net.Security.SslStream]::new($TcpStream, $false)
 			$secureStream.AuthenticateAsClient($Uri.Host)
 			$TcpStream = $secureStream
+			# Connected with <TLS version> using <cipher/ciphersuite>".
+			Write-Debug (Get-MessageTranslation 5 @($TcpStream.SslProtocol, $TcpStream.NegotiatedCipherSuite))
 		}
-		Write-Debug "Connected with $($TcpStream.SslProtocol) using $($TcpStream.NegotiatedCipherSuite)."
 	}
 	Catch {
-		$msg = "Could not connect to $($Uri.Host):$($Uri.Port ?? 70)"
-		If ($UseSSL -or $TrySSL) {
-			$msg += ' with SSL/TLS'
-		}
-
 		# If we're using -TrySSL, then we'll retry without encryption.  Else,s
 		# If we're using -UseSSL, then fail the connection.
 		If ($UseSSL) {
-			$msg += '.  Aborting.'
-
 			# Throw a non-terminating error so that $? is set properly and the
 			# pipeline can continue.  This will allow chaining operators to work as
 			# intended.  Should a future version of this module support pipeline
 			# input, that will let this cmdlet keep running with other input URIs.
 			$er = [Management.Automation.ErrorRecord]::new(
-				[Net.WebException]::new($msg),
+				# "Could not connect to {host}:{port} with SSL/TLS.  Aborting."
+				[Net.WebException]::new((Get-MessageTranslation 7 @($Uri.Host, $Uri.Port ?? 70))),
 				'TlsConnectionFailed',
 				[Management.Automation.ErrorCategory]::ConnectionError,
 				$Uri
@@ -106,7 +111,8 @@ Function Invoke-GopherRequest {
 			Return $null
 		}
 		ElseIf ($TrySSL) {
-			Write-Verbose "$msg.  Retrying with a non-secured connection."
+			# "Could not connect to {host}:{port} with SSL/TLS.  Retrying with a non-secured connection."
+			Write-Verbose (Get-MessageTranslation 8 @($Uri.Host, $Uri.Port ?? 70))
 			$NewParameters = @{
 				'Uri' = $Uri
 				'Info' = $Info
@@ -125,6 +131,11 @@ Function Invoke-GopherRequest {
 			Return (Invoke-GopherRequest @NewParameters)
 			Exit
 		}
+		Else {
+			# "Could not connect to {host}:{port}.  Aborting."
+			Write-Error (Get-MessageTranslation 6 @($Uri.Host, $Uri.Port ?? 70))
+			Return $null
+		}
 	}
 	#endregion (Establish TCP connection)
 
@@ -142,7 +153,7 @@ Function Invoke-GopherRequest {
 		$Path = $Uri.PathAndQuery.Substring(2)
 		$Path = "/$Path" -Replace '//','/'
 
-		Write-Debug "Stripped content type: was=$($Uri.PathAndQuery), now=$Path"
+		Write-Debug (Get-MessageTranslation 9 @($Uri.PathAndQuery, $Path))
 
 		$Uri = [Uri]::new("$($Uri.Scheme)://$($Uri.Host):$($Uri.Port)$Path")
 	}
@@ -161,21 +172,25 @@ Function Invoke-GopherRequest {
 
 	#region Parse input parameters
 	If ($null -eq $InputObject -or $InputObject.Length -eq 0) {
-		Write-Debug 'No additional query string detected.'
+		# "No additional query string detected"
+		Write-Debug (Get-MessageTranslation 10)
 	}
 	Else {
-		Write-Debug "Found additional query string=$InputObject"
+		# "Found additional query string=___"
+		Write-Debug (Get-MessageTranslation 11 $InputObject)
 
 		$Encoder = [Web.HttpUtility]::ParseQueryString('')
 		$Encoder.Add($null, $InputObject)
 		$EncodedInput = $Encoder.ToString() -Replace '\+','%20'	# Gopher requires URL (percent) encoding for spaces.
 		
-		Write-Debug "Encoded additional query string=$EncodedInput"
+		# "Encoded additional query string=___"
+		Write-Debug (Get-MessageTranslation 12 $EncodedInput)
 
 		# If there was already a query string specified in the URL, we will send
 		# both of them, with the URL taking precedence.
 		If ($Uri.Query) {
-			Write-Debug "Found existing query string=$($Uri.Query)"
+			# "Found existing query string=___"
+			Write-Debug (Get-MessageTranslation 13 $Uri.Query)
 		}
 		$Uri = [Uri]::new($Uri.ToString() + ($Uri.Query ? '&' : '?') + $EncodedInput)			
 	}
@@ -195,7 +210,8 @@ Function Invoke-GopherRequest {
 		$ToSend += "`t+$Views"
 	}
 	$ToSend += "`r`n"
-	Write-Debug "Sending $($ToSend.Length) bytes to server:  $($ToSend -Replace "`r",'\r' -Replace "`n",'\n' -Replace "`t",'\t')"
+	# "Sending ___ bytes to server: ___"
+	Write-Debug (Get-MessageTranslation 14 @($ToSend.Length, ($ToSend -Replace "`r",'\r' -Replace "`n",'\n' -Replace "`t",'\t')))
 	$writer = [IO.StreamWriter]::new($TcpStream)
 	$writer.WriteLine($ToSend)
 	$writer.Flush()
@@ -211,7 +227,7 @@ Function Invoke-GopherRequest {
 			'UTF16'   {$Encoder = [Text.UnicodeEncoding]::new()}
 			'Unicode' {$Encoder = [Text.UnicodeEncoding]::new()}
 			'UTF32'   {$Encoder = [Text.UTF32Encoding]::new()}
-			default   {Throw [NotImplementedException]::new('An unknown Encoder was specified.')}
+			default   {Throw [NotImplementedException]::new((Get-MessageTranslation 15))}
 		}
 	}
 
@@ -224,31 +240,38 @@ Function Invoke-GopherRequest {
 	If (-Not $BINARY_TRANSFER)
 	{
 		If ($Info) {
-			Write-Debug "Beginning to read (attributes)."
+			# "Beginning to read (attributes)"
+			Write-Debug (Get-MessageTranslation 16)
 		} Else {
-			Write-Debug "Beginning to read (textual type $ContentTypeExpected)."
+			# "Beginning to read (textual type ___)"
+			Write-Debug (Get-MessageTranslation 17 $ContentTypeExpected)
 		}
 		
 		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
-			Write-Debug "`tReading ≤$BufferSize bytes from the server."
+			# <TAB> "Reading ≤___ bytes from the server."
+			Write-Debug "`t$(Get-MessageTranslation 18 $BufferSize)"
 			$response += $Encoder.GetString($buffer, 0, $bytesRead)
 		}
-		Write-Verbose "Received $($Encoder.GetByteCount($response)) bytes from server."
+		# "Received ___ bytes from server."
+		Write-Verbose (Get-MessageTranslation 19 $Encoder.GetByteCount($response))
 	}
 	Else # it is a binary transfer #
 	{
-		Write-Debug "Beginning to read (binary type $ContentTypeExpected)."
+		# "Beginning to read (binary type ___)."
+		Write-Debug (Get-MessageTranslation 20 $ContentTypeExpected)
 		While (0 -ne ($bytesRead = $TcpStream.Read($buffer, 0, $BufferSize))) {
-			Write-Debug "`tRead ≤$BufferSize bytes from the server."
+			# <TAB> "Reading ≤___ bytes from the server."
+			Write-Debug "`t$(Get-MessageTranslation 18 $BufferSize)"
 			$response.Write($buffer, 0, $bytesRead)
 		}
 		$response.Flush()
-		Write-Verbose "Received $($response.Length) bytes from server."
+		# "Received ___ bytes from server."
+		Write-Verbose (Get-MessageTranslation 19 $Encoder.GetByteCount($response))
 	}
 	#endregion (Receive data)
 
 	# Close connections.
-	Write-Debug 'Closing connections.'
+	Write-Debug (Get-MessageTranslation 21)
 	$writer.Close()
 	$TcpSocket.Close()
 
@@ -277,7 +300,8 @@ Function Invoke-GopherRequest {
 	}
 	Else {
 		$response -Split "(`r`n)" | ForEach-Object {
-			Write-Debug "OUTPUT: $($_ -Replace "`r",'' -Replace "`n",'')"
+			# Show the output
+			Write-Debug (Get-MessageTranslation 22 ($_ -Replace "`r",'' -Replace "`n",''))
 
 			# Build Content variable
 			If ($_.Length -gt 0) {
@@ -317,11 +341,13 @@ Function Invoke-GopherRequest {
 		} Else {
 			If (-Not $BINARY_TRANSFER)
 			{
-				Write-Verbose "Writing $($Encoder.GetByteCount($response)) bytes to $OutFile"
+				# "Writing # bytes to <filename>"
+				Write-Verbose (Get-MessageTranslation 23 @($Encoder.GetByteCount($response), $OutFile))
 				Set-Content -Path $OutFile -Value $Content -Encoding $Encoding 
 			}
 			Else {
-				Write-Verbose "Writing $($response.Length) bytes to $OutFile"
+				# "Writing # bytes to <filename>"
+				Write-Verbose (Get-MessageTranslation 23 @($Encoder.GetByteCount($response), $OutFile))
 				Set-Content -Path $OutFile -Value $Content -AsByteStream 
 			}
 		}
@@ -340,7 +366,8 @@ Function Invoke-GopherRequest {
 		$AttributeValue = ''
 		$response -Split "(\+[A-Z]+):" | ForEach-Object {
 			If ($_.Length -gt 0) {
-				Write-Debug "Gopher+ output line: $_"
+				# "Gopher+ output line: ___"
+				Write-Debug (Get-MessageTranslation 24 $_)
 				# If we've found an attribute, then add the current name/value
 				# into $Result (if there is one).
 				If ($_[0] -eq '+') {
@@ -417,7 +444,8 @@ Function Convert-GopherLink {
 		[UInt16] $Port
 	)
 
-	Write-Debug '*** Found a Gopher link.'
+	# "*** Found a Gopher link."
+	Write-Debug "*** $(Get-MessageTranslation 25)"
 	$fields = $InputObject -Split "`t"
 	$Uri    = $null
 
@@ -440,8 +468,9 @@ Function Convert-GopherLink {
 		}
 	}
 
-	Write-Debug "*** Type=$($fields[0][0]): $Uri"
-	Write-Verbose "LINK: Type=$($fields[0][0]): $Uri"
+	# "*** Type=_: <URL>" and "LINK: Type=_: <URL>", respectively.
+	Write-Debug   "*** $(Get-MessageTranslation 26 @($fields[0][0], $Uri))"
+	Write-Verbose "*** $(Get-MessageTranslation 27 @($fields[0][0], $Uri))"
 	Return [PSCustomObject]@{
 		'href' = $uri
 		'Type' = $fields[0][0]
@@ -652,12 +681,63 @@ Function Get-GopherType {
 
 	$Result = $null
 	ForEach ($regex in $Extensions.GetEnumerator()) {
-		Write-Debug "Testing extension $Extension against $($regex.Name)."
+		# "Testing extension $Extension against $($regex.Name)."
+		Write-Debug (Get-MessageTranslation 28 @($Extension, $regex.Name))
 		If ($Extension -Match $regex.Name) {
 			$Result = $regex.Value
 			Break
 		}
 	}
-	Write-Verbose "Guessing that the extension $Extension is of type $($Result ?? 'unknown')."
+	# "Guessing that the extension ___ is of type $(___ ?? 'unknown')."
+	Write-Verbose (Get-MessageTranslation 29 @($Extension, ($Result ?? (Get-MessageTranslation 30))))
 	Return $Result
+}
+
+Function Get-MessageTranslation {
+	[OutputType([String])]
+	Param(
+		[Parameter(Position=0, Mandatory)]
+		[UInt16] $MessageID,
+
+		[Parameter(Position=1)]
+		[AllowNull()]
+		[String[]] $Substitutions = @()
+	)
+
+	If ($null -eq $script:Translations) {
+		Import-Translations
+	}
+
+	Return ($script:Translations[$MessageID - 1] -f $Substitutions)
+}
+
+Function Import-Translations {
+	# Error messages in this function indicate that a localization does
+	# not exist, could not be loaded, or has not yet been loaded and any
+	# lookup would cause an infinite loop.  Do not translate these
+	# errors;  leave them in English.
+	[CmdletBinding()]
+	[OutputType([Void])]
+	Param(
+		[Switch] $ForceEnUs
+	)
+
+	$Language = (Get-Culture)
+
+	Try {
+		# "Attempting to load translations for <your language here>."
+		Write-Debug "Attempting to load translations for $($Language.Name)"
+		$File = Join-Path -Path (Get-Module 'PSGopher').ModuleBase -ChildPath $Language.Name -AdditionalChildPath 'translations.json'
+		$script:Translations = Get-Content -Path $File -Encoding 'UTF8' | ConvertFrom-Json
+	}
+	Catch {
+		If (-Not $ForceEnUs) {
+			Write-Debug "Falling back to English (United States)"
+			Import-Translations -ForceEnUs:$true
+		}
+		Else {
+			Throw 'Failed to load en-US translation!'
+		}
+	}
+	Return
 }

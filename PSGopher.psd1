@@ -72,12 +72,14 @@ FileList = @(
 	'en-US/PSGopher-help.xml',
 	'en-US/translations.json',
 	'src/PSGopher.psm1',
-	'AUTHORS',
+	'tests/gopher.gif',
+	'AUTHORS.md',
 	'CHANGELOG.md',
-	'INSTALL',
+	'INSTALL.md',
 	'LICENSE',
-	'NEWS',
+	'NEWS.md',
 	'PSGopher.psd1',
+	'PSGopher.Tests.ps1',
 	'README.md'
 )
 
@@ -99,7 +101,11 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'Now with more reading material!'
+		ReleaseNotes = "- Added support for language translations!  Create a file called 'translations.json' in this module's language folder, and this script will find it (e.g., 'en-US/translations.json').  Please contribute them on GitHub!
+-  Fixed content type reporting.  Now, types are always an ASCII character, and never a number.  This is in line with the Gopher specification.  For example, the Gophermap type will be reported correctly as '1' (ASCII 49) instead of 1 (0x01).  Please update any code that relies on this module.
+-  Added Pester tests.
+-  Fixed a bug where explicit content types might be returned as plain text when they are in fact Gopher menus.
+-  Fixed a bug where saving files with -OutFile might throw an error under some circumstances."
 
 		# Prerelease string of this module
 		# Prerelease = 'git'

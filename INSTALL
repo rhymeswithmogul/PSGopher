@@ -1,6 +1,0 @@
-If you are not installing from the PowerShell Gallery, simply copy all of these
-files into your $env:PSModulePath.  For example:
-
-PS> Copy-Item -Recurse . C:\Users\you\Documents\PowerShell\Modules\PSGopher\
-
-Then restart PowerShell.
